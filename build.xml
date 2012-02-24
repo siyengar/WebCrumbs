@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="WebCrumbs" default="run" basedir = ".">	
+	<property name = "src" value = "src" />
+	<property name="build" value="build"/>
+	<property name="lib" value="lib"/>
+	<property name="main-class" value="edu.stanford.webcrumbs.SelectionGUI" />
+	
+	 <path id="classpath">
+        <fileset dir="${lib}" includes="**/*.jar"/>
+   	 </path>
+	
+	<target name = "init">
+		<mkdir dir = "${build}" />
+	</target>
+	
+	<target name = "compile" depends = "init">
+		 <javac srcdir="${src}" destdir="${build}" classpathref="classpath" 
+		 			debug="true" debuglevel="lines,vars,source"/>
+	</target>
+
+	<target name="clean">
+		<delete verbose="true">
+			<fileset dir="${build}" />
+		</delete>
+	</target>
+	
+	<target name = "run" depends = "jar">
+	<echo message="${ant.home}" />
+		 <java fork="true" classname="${main-class}">
+            <classpath>
+                <path refid="classpath"/>
+                <path location="${basedir}/${ant.project.name}.jar"/>
+            </classpath>
+        </java>
+	</target>
+	
+	<target name = "jar" depends = "compile">
+		<jar destfile="${basedir}/${ant.project.name}.jar" basedir="${build}">
+            <manifest>
+                <attribute name="Main-Class" value="${main-class}"/>
+            </manifest>
+        </jar>
+	</target>
+	
+</project>
