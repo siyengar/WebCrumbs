@@ -5,6 +5,8 @@ package edu.stanford.webcrumbs.parsers;
  * It returns a list of connections.
  * 
  * To use pass option -t fourthparty
+ * 
+ * Author : Subodh Iyengar
  */
 
 

@@ -7,6 +7,8 @@ package edu.stanford.webcrumbs.data;
  * 
  * To represent the page as a domain. Set the url
  * property in the constructor to be the domain name.
+ * 
+ * Author : Subodh Iyengar
  */
 
 

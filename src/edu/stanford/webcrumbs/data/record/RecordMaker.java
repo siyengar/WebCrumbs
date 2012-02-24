@@ -12,6 +12,8 @@ package edu.stanford.webcrumbs.data.record;
  * 
  * To distinguish between connections and redirects
  * it adds a line 'redirect' after the connections.
+ * 
+ * Author : Subodh Iyengar
  */
 
 import java.io.BufferedWriter;

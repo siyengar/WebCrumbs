@@ -1,5 +1,9 @@
 package edu.stanford.webcrumbs.data;
 
+/*
+ * Author : Subodh Iyengar
+ */
+
 public class StringMatch{
 	private String type;
 	private int tupleId;

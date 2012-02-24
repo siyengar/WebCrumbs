@@ -3,6 +3,9 @@ package edu.stanford.webcrumbs.data;
 /*
  * class Connection represents a directed edge between two 
  * pages in the Graph from source => target.
+ * 
+ * Author : Subodh Iyengar
+ * 
  */
 
 public class Connection{

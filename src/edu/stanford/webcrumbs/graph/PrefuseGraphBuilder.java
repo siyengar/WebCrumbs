@@ -3,8 +3,9 @@ package edu.stanford.webcrumbs.graph;
 /*
  * Builds a prefuse graph from 
  * Connections output by a Parser
- * 
  * implements GraphBuilder
+ * 
+ * Author : Subodh Iyengar
  */
 
 import java.util.HashMap;

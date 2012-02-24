@@ -1,5 +1,8 @@
 package edu.stanford.webcrumbs.ranker;
 
+/*
+ * Author : Subodh Iyengar
+ */
 
 public interface NodeRanker<Node> {
 	// return null if no size

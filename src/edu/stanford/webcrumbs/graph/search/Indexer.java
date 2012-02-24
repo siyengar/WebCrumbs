@@ -1,5 +1,9 @@
 package edu.stanford.webcrumbs.graph.search;
 
+/*
+ * Author : Subodh Iyengar
+ */
+
 import java.util.List;
 
 import edu.stanford.webcrumbs.data.StringMatch;

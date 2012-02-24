@@ -9,6 +9,7 @@ package edu.stanford.webcrumbs.data;
  * Pending connections keeps track of this pending 
  * state of requests. 
  * 
+ * Author : Subodh Iyengar
  */
 
 public class PendingConnection{

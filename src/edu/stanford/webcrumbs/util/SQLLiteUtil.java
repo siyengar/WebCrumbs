@@ -3,6 +3,8 @@ package edu.stanford.webcrumbs.util;
 /*
  * Feel good functions for easy manipulation of 
  * sqlite databases
+ * 
+ * Author : Subodh Iyengar
  */
 
 import java.sql.DriverManager;

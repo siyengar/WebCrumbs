@@ -6,6 +6,7 @@ package edu.stanford.webcrumbs.data;
  * It will also serialize the cookie to string
  * as well as to JSON.
  * 
+ * Author : Subodh Iyengar
  */
 
 

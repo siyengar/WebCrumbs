@@ -1,14 +1,8 @@
 package edu.stanford.webcrumbs;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import edu.stanford.webcrumbs.ranker.NodeRanker;
-
-// parses the arguments
-
-// The arguments that can be given to the program are:
 /*
+ * Parses the arguments
+ *  The arguments that can be given to the program are:
  * -d : Datafile from which to load
  * -t : Type of the DataFile (har/fourthparty/fourthpartydatafile/custom class)
  * -i : Location of ignoreFile
@@ -21,7 +15,15 @@ import edu.stanford.webcrumbs.ranker.NodeRanker;
  * 		For example the har parser, can take either 'domain' or 'url' as an option. 
  * -convert : To convert to JUNG. Some rankers require this
  * -<custom option> : for all custom options required
+ * 
+ * Author : Subodh Iyengar
+ * 
  */
+
+import java.util.HashMap;
+import java.util.Map;
+
+import edu.stanford.webcrumbs.ranker.NodeRanker;
 
 public class Arguments {
 	private static String file;

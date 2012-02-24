@@ -5,8 +5,9 @@ package edu.stanford.webcrumbs.parsers;
  * and returns a list of connections
  * 
  * Har is a JSON format for debugging web requests
- * 
  * Use option -t har to use.
+ * 
+ * Author : Subodh Iyengar
  */
 
 

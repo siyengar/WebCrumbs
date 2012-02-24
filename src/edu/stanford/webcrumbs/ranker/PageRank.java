@@ -1,5 +1,10 @@
 package edu.stanford.webcrumbs.ranker;
 
+/*
+ * Author : Subodh Iyengar
+ * 
+ */
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileInputStream;

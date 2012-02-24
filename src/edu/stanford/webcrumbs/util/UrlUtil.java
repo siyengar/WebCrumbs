@@ -4,6 +4,7 @@ package edu.stanford.webcrumbs.util;
  * Manipulate urls
  * and we all know what a pain that can be.
  * 
+ * Author : Subodh Iyengar
  */
 
 import java.util.Map;

@@ -1,11 +1,14 @@
 package edu.stanford.webcrumbs.util;
 
+/*
+ * Set of useful functions for all classes
+ * 
+ * Author : Subodh Iyengar
+ */
+
 import java.util.HashMap;
 import java.util.Map;
 
-/*
- * Set of useful functions for all classes
- */
 
 public class CommonUtil {
 	

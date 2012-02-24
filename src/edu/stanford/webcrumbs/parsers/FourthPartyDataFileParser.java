@@ -5,6 +5,8 @@ package edu.stanford.webcrumbs.parsers;
  * created by RecordMaker and read by RecordReader
  * 
  * To use pass option -t fourthpartydatafile
+ * 
+ * Author : Subodh Iyengar
  */
 
 

@@ -3,6 +3,7 @@ package edu.stanford.webcrumbs.visualization;
 /*
  * Starts the visualization of the graph
  * 
+ * Author : Subodh Iyengar
  */
 
 import java.awt.BorderLayout;

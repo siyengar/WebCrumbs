@@ -4,6 +4,7 @@ package edu.stanford.webcrumbs.parsers;
  * Interface that any valid parser
  * must implement
  * 
+ * Author : Subodh Iyengar
  */
 
 import java.util.List;

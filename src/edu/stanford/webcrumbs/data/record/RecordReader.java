@@ -9,6 +9,8 @@ package edu.stanford.webcrumbs.data.record;
  * Call next() to advance the pointer
  * and then call getString(key) to get the property
  * key.
+ * 
+ * Author : Subodh Iyengar
  */
 
 import java.io.BufferedReader;

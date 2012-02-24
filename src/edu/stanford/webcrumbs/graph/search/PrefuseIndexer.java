@@ -4,6 +4,8 @@ package edu.stanford.webcrumbs.graph.search;
  * Indexes strings so that we can search for them in 
  * a prefuse graph
  * 
+ * Author : Subodh Iyengar
+ * 
  */
 
 

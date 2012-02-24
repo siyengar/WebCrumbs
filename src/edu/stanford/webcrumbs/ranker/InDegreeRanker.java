@@ -4,6 +4,8 @@ package edu.stanford.webcrumbs.ranker;
  * Indegree ranker ranks the nodes on the basis on indegree.
  * It uses a JUNG graph representation of the prefuse graph 
  * since prefuse is slow for graph algorithms.
+ * 
+ * Author : Subodh Iyengar
  */
 
 

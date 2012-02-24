@@ -4,6 +4,8 @@ package edu.stanford.webcrumbs.data;
  * RedirectConnection is a subclass 
  * of the Connection object and keeps 
  * track of redirects
+ * 
+ * Author : Subodh Iyengar
  */
 
 public class RedirectConnection extends Connection {
