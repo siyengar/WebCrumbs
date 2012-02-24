@@ -2,6 +2,8 @@ package edu.stanford.webcrumbs;
 
 import java.util.List;
 
+import javax.swing.JFrame;
+
 import prefuse.data.Graph;
 import edu.stanford.webcrumbs.Arguments;
 import edu.stanford.webcrumbs.graph.GraphBuilder;
@@ -19,7 +21,7 @@ import edu.stanford.webcrumbs.parsers.Parser;
 import edu.stanford.webcrumbs.util.UrlUtil;
 
 public class Main {
-	public static void runSimulation() throws Exception{
+	public static void runSimulation(int ON_CLOSE) throws Exception{
 		
 		// initializes the domain map
 		UrlUtil.createDomainMap();
@@ -78,13 +80,13 @@ public class Main {
 		}
 		
 		Visualization vis = p_vis; 		
-		vis.startVisualization();
+		vis.startVisualization(ON_CLOSE);
 	}
 	
 	public static void main(String[] args){
 		try {
 			Arguments.parse(args);
-			runSimulation();
+			runSimulation(JFrame.EXIT_ON_CLOSE);
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 			e.printStackTrace();

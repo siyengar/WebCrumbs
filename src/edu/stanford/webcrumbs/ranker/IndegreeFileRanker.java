@@ -24,15 +24,14 @@ public class IndegreeFileRanker
 	final double MAX_SIZE = 100.;
 	double SLOPE;
 	
-	public void run(){	
+	public void run() throws Exception{	
 		String fileName = null;
 		if (Arguments.hasArg("-rankerfile")){
 			fileName = Arguments.getArg("-rankerfile");
 		}
 		else{
-			System.out.println("this ranker requires an input indegree file. " +
+			throw new Exception("this ranker requires an input indegree file. " +
 					"Specify -rankerfile option");
-			System.exit(-1);
 		}
 		try {
 			FileInputStream fin = new FileInputStream(fileName);

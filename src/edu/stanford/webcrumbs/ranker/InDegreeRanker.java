@@ -17,6 +17,7 @@ import java.util.TreeMap;
 
 import prefuse.data.Tuple;
 
+import edu.stanford.webcrumbs.Arguments;
 import edu.stanford.webcrumbs.data.Connection;
 import edu.stanford.webcrumbs.data.Page;
 import edu.stanford.webcrumbs.graph.PrefuseToJUNG;
@@ -31,8 +32,8 @@ public class InDegreeRanker implements
 	int MIN_SCORE = Integer.MAX_VALUE;
 	int MAX_SCORE = 0;
 	
-	int MIN_SIZE = 2;
-	int MAX_SIZE = 5;
+	int MIN_SIZE = 20;
+	int MAX_SIZE = 100;
 	
 	double SLOPE;
 	
@@ -47,7 +48,11 @@ public class InDegreeRanker implements
 		return indegree;
 	}
 	
-	public void run(){
+	public void run() throws Exception{
+		if (!Arguments.hasArg("-convert")){
+			throw new Exception("-convert option needs to be specified for indegree ranker");
+		}
+		
 		jungGraph = PrefuseToJUNG.getGraph();
 		for (Page p : jungGraph.getVertices()){
 			int score = getInVertices(p);

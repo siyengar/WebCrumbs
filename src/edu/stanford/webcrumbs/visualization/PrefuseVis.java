@@ -366,7 +366,11 @@ public class PrefuseVis implements edu.stanford.webcrumbs.visualization.Visualiz
 			
 			Tuple source = item.getSourceTuple();
 			
-			tip = new JFrame(source.getString("domain"));
+			if (source.canGet("domain", String.class)){
+				tip = new JFrame(source.getString("domain"));
+			}else{
+				tip = new JFrame(source.getString("sourceName") + ">" + source.getString("targetName"));
+			}
 			tip.setAlwaysOnTop(true);
 			tip.setDefaultCloseOperation(tip.DISPOSE_ON_CLOSE);
 			JPanel panel = new JPanel();
@@ -443,7 +447,7 @@ public class PrefuseVis implements edu.stanford.webcrumbs.visualization.Visualiz
 		this.index = new PrefuseIndexer();
 	}
 	
-	public void startVisualization(){
+	public void startVisualization(int ON_CLOSE){
 		vis = new Visualization();
 		vis.add(graphGroup, graph);
 		
@@ -455,7 +459,7 @@ public class PrefuseVis implements edu.stanford.webcrumbs.visualization.Visualiz
 		LabelRenderer labelRenderer = new NormalLabelRenderer(labelField);
 		//LabelRenderer labelRenderer = new RoundLabelRenderer(labelField);
 		EdgeRenderer edgeRenderer = 
-			new EdgeRenderer(Constants.EDGE_TYPE_LINE, Constants.EDGE_ARROW_FORWARD);
+			new EdgeRenderer(Constants.EDGE_TYPE_CURVE, Constants.EDGE_ARROW_FORWARD);
 			
 		// modify the renderers
 		labelRenderer.setRenderType(AbstractShapeRenderer.RENDER_TYPE_FILL);
@@ -581,7 +585,7 @@ public class PrefuseVis implements edu.stanford.webcrumbs.visualization.Visualiz
 
 		
 		prefuseFrame = new JFrame("prefuse");
-		prefuseFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		prefuseFrame.setDefaultCloseOperation(ON_CLOSE);
 		prefuseFrame.add(panel);
 		prefuseFrame.pack();           
 		prefuseFrame.setVisible(true); 

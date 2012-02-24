@@ -42,6 +42,8 @@ public class PrefuseGraphBuilder implements GraphBuilder<Graph>{
 		edges.addColumn("responseCookie", String.class);
 		edges.addColumn("redirect", boolean.class);
 		edges.addColumn("key", int.class);
+		edges.addColumn("sourceName", String.class);
+		edges.addColumn("targetName", String.class);
 		
 		Map<Page, Integer> pageTupleMap = new HashMap<Page, Integer>();
 		
@@ -89,6 +91,8 @@ public class PrefuseGraphBuilder implements GraphBuilder<Graph>{
 			edges.set(edgeRow, "responseCookie", c.getReponseCookie().toString());
 			edges.set(edgeRow, "redirect", c.isRedirect());
 			edges.set(edgeRow, "key", edgeRow);
+			edges.set(edgeRow, "sourceName", source.getDomain());
+			edges.set(edgeRow, "targetName", target.getDomain());
 		}
 		
 		Graph requestMap = 

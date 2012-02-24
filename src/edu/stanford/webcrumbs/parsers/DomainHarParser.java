@@ -159,6 +159,9 @@ public class DomainHarParser implements Parser{
 			if(ignoreList.contains(domain))
 				continue;
 			
+			if (url.equals("about:blank"))
+				continue;
+			
 			String method = "";
 			String queryString = "";
 			String status = "";
@@ -222,7 +225,7 @@ public class DomainHarParser implements Parser{
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
-			
+				
 			String refererDomain = UrlUtil.getDomain(referer);
 			
 			Page current = new Page(domain, domain, refererDomain, body, mimeType);

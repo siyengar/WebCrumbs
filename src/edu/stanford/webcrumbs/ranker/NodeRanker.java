@@ -7,5 +7,5 @@ public interface NodeRanker<Node> {
 	
 	// return null to revert to defaults
 	public Integer getColor(Node node);
-	public void run();
+	public void run() throws Exception;
 }

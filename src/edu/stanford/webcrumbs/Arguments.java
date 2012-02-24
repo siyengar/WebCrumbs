@@ -19,6 +19,8 @@ import edu.stanford.webcrumbs.ranker.NodeRanker;
  * -f : filter websites (defaults to true) (can take values 'true' / 'false')
  * -v : Visualization option that can depends on the parser. 
  * 		For example the har parser, can take either 'domain' or 'url' as an option. 
+ * -convert : To convert to JUNG. Some rankers require this
+ * -<custom option> : for all custom options required
  */
 
 public class Arguments {
@@ -33,6 +35,8 @@ public class Arguments {
 	private static String vis = "domain";
 	
 	private static NodeRanker rankerInstance;
+	
+	static final String customOptions[] = {"-convert", "-rankerFile"}; 
 	
 	private static Map<String, String> argumentMap = 
 		new HashMap<String, String>();
@@ -146,8 +150,10 @@ public class Arguments {
 	// pass null to not set the arg
 	public static void set(String file, String type, 
 					  String ignore, String outputFile,
-					  String dataFile2, String ranker, String shapeRanker,
-					  String[] websites) throws InstantiationException, 
+					  String dataFile2, String ranker,
+					  String[] websites,
+					  String rankerFile,
+					  String convert) throws InstantiationException, 
 					  IllegalAccessException, ClassNotFoundException {
 		Arguments.file = file;
 		Arguments.type = type;
@@ -160,6 +166,10 @@ public class Arguments {
 		}
 		
 		Arguments.websites = websites;
+		if (rankerFile != null)
+			argumentMap.put("-rankerfile", rankerFile);
+		if (convert != null)
+			argumentMap.put("-convert", convert);
 	}
 	
 	

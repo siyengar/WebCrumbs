@@ -59,6 +59,7 @@ public class UrlUtil {
 	
 	public static String getDomain(String url){
 		if (url.equals("")) return "";
+		
 		url = url + "/";
 		url = url.replace('?', '/');
 		
