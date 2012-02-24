@@ -42,4 +42,15 @@
         </jar>
 	</target>
 	
+	<target name = "gui">
+	<echo message="${ant.home}" />
+		 <java fork="true" classname="${main-class}">
+            <classpath>
+                <path refid="classpath"/>
+                <path location="${basedir}/${ant.project.name}.jar"/>
+            </classpath>
+        </java>
+	</target>
+	
+	
 </project>
