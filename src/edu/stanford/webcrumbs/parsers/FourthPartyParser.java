@@ -232,7 +232,6 @@ public class FourthPartyParser implements Parser {
 			Connection conn = connections.get(i);
 			if (conn.isRedirect()){
 				
-				String redirectedURL = conn.getRedirectedURL();
 
 				// no self loops
 				if (conn.getRedirectedURL().equals(conn.getTarget().getURL()))

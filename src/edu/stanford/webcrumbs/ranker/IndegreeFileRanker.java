@@ -10,7 +10,6 @@ import java.util.Map;
 
 import edu.stanford.webcrumbs.Arguments;
 
-import prefuse.data.Node;
 import prefuse.data.Tuple;
 import prefuse.util.ColorLib;
 

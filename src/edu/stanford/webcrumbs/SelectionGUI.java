@@ -3,8 +3,16 @@ package edu.stanford.webcrumbs;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.security.CodeSource;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
@@ -19,6 +27,7 @@ import javax.swing.table.AbstractTableModel;
 
 public class SelectionGUI extends JFrame{
 	
+	private static final long serialVersionUID = 648187778060268658L;
 	JComboBox chooseParser;
 	JComboBox chooseRanker;
 	JTable optionTable;
@@ -149,21 +158,43 @@ public class SelectionGUI extends JFrame{
 		}	
 	}
 	
-	String[] getClassesInDir(String dirName){
-		File dir = new File(dirName);
-		String[] children = dir.list();
-		for (int i = 0; i < children.length; ++i){
-			children[i] = children[i].substring(0, children[i].length() - 6);
+	String[] getClassesInDir(String dirName) throws URISyntaxException, IOException{
+		
+		ArrayList<String> child = new ArrayList<String>();
+		URL classURI = getClass().getClassLoader().getResource(dirName);
+		CodeSource src = getClass().getProtectionDomain().getCodeSource();
+		if (src != null) {
+		  URL jar = src.getLocation();
+		  ZipInputStream zip = new ZipInputStream(jar.openStream());
+		  while (zip.available() > 0){
+			  ZipEntry ze = zip.getNextEntry();
+			  if (ze != null){
+				  String name = ze.getName();
+				  if (name != null && name.startsWith(dirName)){
+					  if (name.length() > dirName.length()){
+						  String mod = name.substring(dirName.length(), name.length() - 6);
+						  child.add(mod);
+					  }
+				  }
+			  }
+		  }
+		} 
+		
+		String[] children = new String[child.size()];
+		
+		for (int i = 0; i < child.size(); ++i){
+			children[i] = child.get(i);
 		}
+		
 		return children;
 	}
 	
-	String [] getParsers(){
-		return getClassesInDir("bin/edu/stanford/webcrumbs/parsers/");
+	String [] getParsers() throws URISyntaxException, IOException{
+		return getClassesInDir("edu/stanford/webcrumbs/parsers/");
 	}
 	
-	String[] getRankers(){
-		String[] ranks = getClassesInDir("bin/edu/stanford/webcrumbs/ranker/");
+	String[] getRankers() throws URISyntaxException, IOException{
+		String[] ranks = getClassesInDir("edu/stanford/webcrumbs/ranker/");
 		String[] rankers = new String[ranks.length + 1];
 		rankers[0] = "";
 		for (int i = 1; i < rankers.length; ++i){
@@ -188,13 +219,25 @@ public class SelectionGUI extends JFrame{
 		chooseFile = new JButton("Choose file");
 		chooseFile.addActionListener(new FileListener());
 		
-		String [] parsers = getParsers();
+		String[] parsers = null;
+		try {
+			parsers = getParsers();
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.exit(-1);
+		}
 		chooseParser = new JComboBox(parsers);
 		chooseParser.setSelectedIndex(0);
 		
 		JLabel l_chooseParser = new JLabel("Choose Parser");
 		
-		String [] rankers = getRankers();
+		String[] rankers = null;
+		try {
+			rankers = getRankers();
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.exit(-1);
+		}
 		chooseRanker = new JComboBox(rankers);
 		chooseRanker.setSelectedIndex(0);
 		JLabel l_chooseRanker = new JLabel("Choose Ranker");
