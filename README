@@ -1,6 +1,19 @@
 WebCrumbs is an analysis platform for web logs that are based on Requests.
 
-To run WebCrumbs download webcrumbs.jar, build.xml and the runWebCrumbs.bat file if you're on Windows.
+To run WebCrumbs:
+1. Install ant, if you don't already have it.
+2. If on Windows put ant in your path.
+3. Download webcrumbs.jar, build.xml and runWebCrumbs.bat
+4. Run runWebCrumbs.bat
 
-The data directory has some data files to play around with. 
+The data directory has some fun data files to play around with. WebCrumbs currently
+supports both the HAR and FourthParty data formats. Adding your own file is easy with
+pluggable Parsers (More on how to make your own Parser later). 
 
+You can render and search through graphs using the WebCrumbs framework.
+
+You can also plug in your own rankers which allow you to both change the color and the 
+size of the nodes in the graph that you observe. 
+
+WebCrumbs makes even the visualization libraries pluggable (more work to allow that fully is on 
+my TODO list).
