@@ -1,0 +1,6 @@
+WebCrumbs is an analysis platform for web logs that are based on Requests.
+
+To run WebCrumbs download webcrumbs.jar, build.xml and the runWebCrumbs.bat file if you're on Windows.
+
+The data directory has some data files to play around with. 
+
