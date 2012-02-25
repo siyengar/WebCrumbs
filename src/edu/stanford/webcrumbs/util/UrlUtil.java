@@ -61,6 +61,10 @@ public class UrlUtil {
 	public static String getDomain(String url){
 		if (url.equals("")) return "";
 		
+		if (url.startsWith("data")){
+			return "data node";
+		}
+		
 		url = url + "/";
 		url = url.replace('?', '/');
 		

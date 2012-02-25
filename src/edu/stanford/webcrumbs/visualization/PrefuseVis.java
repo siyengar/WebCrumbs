@@ -8,6 +8,7 @@ package edu.stanford.webcrumbs.visualization;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.GridLayout;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -17,8 +18,11 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.GroupLayout;
+import javax.swing.GroupLayout.Alignment;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -68,8 +72,12 @@ public class PrefuseVis implements edu.stanford.webcrumbs.visualization.Visualiz
 	Visualization vis;
 	JFrame prefuseFrame;
 	
+	JPanel resultPanel;
+	
 	final int TIP_WIDTH = 500;
 	final int TIP_HEIGHT = 500;
+	final int NUM_DISPLAY = 20;
+	
 	
 	Indexer index;
 	
@@ -219,7 +227,6 @@ public class PrefuseVis implements edu.stanford.webcrumbs.visualization.Visualiz
 		}
 	}
 	
-	
 	class ElementColorAction extends DataColorAction{
 		String field;
 		String[] mapping;
@@ -262,14 +269,10 @@ public class PrefuseVis implements edu.stanford.webcrumbs.visualization.Visualiz
 		}
 	}
 	
+	
 	class SearchBoxListener implements ActionListener{
-		JTextField text;
-		public SearchBoxListener(JTextField text){
-			this.text = text;
-		}
 		
-		public void actionPerformed(ActionEvent e){
-			String selText = text.getText();
+		public void search(String selText){
 			List<StringMatch> sm = null;
 			if (selText != null)
 				sm = index.getMatches(selText);
@@ -308,9 +311,25 @@ public class PrefuseVis implements edu.stanford.webcrumbs.visualization.Visualiz
 			}
 			vis.run("repaint");
 		}
+		
+		public void actionPerformed(ActionEvent e){
+			JTextField text = (JTextField)e.getSource();
+			String selText = text.getText();
+			search(selText);
+		}
 	}   
 	
-	
+	class TopQueryListener extends SearchBoxListener implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			JButton sourceButton = (JButton)e.getSource();
+			String selText = sourceButton.getText();
+			super.search(selText);
+		}
+
+	}
+
 	class SearchListener implements ActionListener{
 		JTextArea text;
 		public SearchListener(JTextArea text){
@@ -435,6 +454,20 @@ public class PrefuseVis implements edu.stanford.webcrumbs.visualization.Visualiz
 	
 	public void setSearchIndex(Indexer index){
 		this.index = index;
+	}
+	
+	public void fillResultPanel(){
+		if (this.index != null){
+			ArrayList<String> topStrings = index.getTopStrings(NUM_DISPLAY);
+			GridLayout grid = new GridLayout(NUM_DISPLAY, 1);
+			resultPanel.setLayout(grid);
+			TopQueryListener topqueries = new TopQueryListener();
+			for (String topString : topStrings){
+				JButton label = new JButton(topString);
+				resultPanel.add(label);
+				label.addActionListener(topqueries);
+			}
+		}
 	}
 	
 	public PrefuseVis(Graph graph,  
@@ -566,26 +599,61 @@ public class PrefuseVis implements edu.stanford.webcrumbs.visualization.Visualiz
 		// run vis
 		JTextField searchField = new JTextField(1);
 		
-		JButton searchButton = new JButton("search");
-		searchButton.addActionListener(new SearchBoxListener(searchField));
+		JPanel searchPanel = new JPanel();
+		resultPanel = new JPanel();
+		fillResultPanel();
 		
+		JButton searchButton = new JButton("search");
+		GroupLayout searchPanelLayout = new GroupLayout(searchPanel);
+		searchPanel.setLayout(searchPanelLayout);
+		
+		searchPanelLayout.setHorizontalGroup(searchPanelLayout.createParallelGroup().
+											 addComponent(searchField).
+											 addComponent(resultPanel, Alignment.CENTER, 150, 150, 200).
+											 addComponent(searchButton, Alignment.CENTER, 150, 150, 200));
+		
+		
+		searchPanelLayout.setVerticalGroup(searchPanelLayout.createSequentialGroup().
+										   addComponent(searchField, 30, 30, 30).
+										   addComponent(searchButton).
+										   addGap(30).
+										   addComponent(resultPanel, 20 * NUM_DISPLAY, 20 * NUM_DISPLAY, 20 * NUM_DISPLAY));
+											
+		
+		//searchPanel.add(searchField);
+		//searchPanel.add(searchButton);
+		searchButton.addActionListener(new SearchBoxListener());
+		
+		/*
 		Box box = new Box(BoxLayout.X_AXIS);
 		box.add(Box.createHorizontalStrut(10));
 		box.add(Box.createHorizontalGlue());
 		box.add(searchField);
 		box.add(searchButton);
 		box.add(Box.createHorizontalStrut(3));
-
+		 */
+		
 		JPanel panel = new JPanel(new BorderLayout());
 		panel.add(display, BorderLayout.CENTER);
-		panel.add(box, BorderLayout.SOUTH);
+		//panel.add(box, BorderLayout.SOUTH);
 
 		Color BACKGROUND = Color.WHITE;
 		Color FOREGROUND = Color.DARK_GRAY;
 		UILib.setColor(panel, BACKGROUND, FOREGROUND);
 
+		prefuseFrame = new JFrame("WebCrumbs");
 		
-		prefuseFrame = new JFrame("prefuse");
+		GroupLayout prefuseLayout = new GroupLayout(prefuseFrame.getContentPane());
+		prefuseFrame.getContentPane().setLayout(prefuseLayout);
+		prefuseLayout.setHorizontalGroup(prefuseLayout.createSequentialGroup().
+										  addComponent(panel).
+										  addComponent(searchPanel, 150, 150, 200));
+		
+		prefuseLayout.setVerticalGroup(prefuseLayout.createParallelGroup().
+										addComponent(panel).
+										addComponent(searchPanel));
+		
+		
 		prefuseFrame.setDefaultCloseOperation(ON_CLOSE);
 		prefuseFrame.add(panel);
 		prefuseFrame.pack();           
