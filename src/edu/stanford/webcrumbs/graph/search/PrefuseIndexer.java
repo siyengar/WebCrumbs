@@ -87,6 +87,8 @@ public class PrefuseIndexer implements Indexer<Graph>{
 	} 
 	
 	boolean keyAllowed(String key){
+		if (key.length() < 3)
+			return false;
 		
 		String[] disallowed = {"", "addn", "true", "false"};
 		

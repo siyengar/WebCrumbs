@@ -28,6 +28,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
+import edu.stanford.webcrumbs.Arguments;
 import edu.stanford.webcrumbs.data.StringMatch;
 import edu.stanford.webcrumbs.graph.search.Indexer;
 import edu.stanford.webcrumbs.graph.search.PrefuseIndexer;
@@ -458,8 +459,13 @@ public class PrefuseVis implements edu.stanford.webcrumbs.visualization.Visualiz
 	
 	public void fillResultPanel(){
 		if (this.index != null){
-			ArrayList<String> topStrings = index.getTopStrings(NUM_DISPLAY);
-			GridLayout grid = new GridLayout(NUM_DISPLAY, 1);
+			int num = NUM_DISPLAY;
+			
+			if (Arguments.hasArg("numsearches")){
+				num = Integer.parseInt(Arguments.getArg("numsearches"));
+			}
+			ArrayList<String> topStrings = index.getTopStrings(num);
+			GridLayout grid = new GridLayout(num, 1);
 			resultPanel.setLayout(grid);
 			TopQueryListener topqueries = new TopQueryListener();
 			for (String topString : topStrings){
@@ -613,11 +619,18 @@ public class PrefuseVis implements edu.stanford.webcrumbs.visualization.Visualiz
 											 addComponent(searchButton, Alignment.CENTER, 150, 150, 200));
 		
 		
+		int num = NUM_DISPLAY;
+		
+		if (Arguments.hasArg("numsearches")){
+			num = Integer.parseInt(Arguments.getArg("numsearches"));
+		}
+		
+		
 		searchPanelLayout.setVerticalGroup(searchPanelLayout.createSequentialGroup().
 										   addComponent(searchField, 30, 30, 30).
 										   addComponent(searchButton).
 										   addGap(30).
-										   addComponent(resultPanel, 20 * NUM_DISPLAY, 20 * NUM_DISPLAY, 20 * NUM_DISPLAY));
+										   addComponent(resultPanel, 20 * num, 20 * num, 20 * num));
 											
 		
 		//searchPanel.add(searchField);

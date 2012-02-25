@@ -52,7 +52,8 @@ public class SelectionGUI extends JFrame{
 						{"dataFile2", ""}, 
 						{"filter", "true"}, 
 						{"convert", "false"},
-						{"rankerfile", "data/indegree_similar"}}; 
+						{"rankerfile", "data/indegree_similar"},
+						{"numsearches", "20"}}; 
 	
 		String[] colNames = {"key", "value"};
 		Map<String, Integer> propIdx = new HashMap<String, Integer>();
@@ -130,6 +131,9 @@ public class SelectionGUI extends JFrame{
 				if (convert.equals("false")){
 					convert = null;
 				}
+				
+				String numsearches = tableData.getProperty("numsearches");
+				Arguments.putArg("numsearches", tableData.getProperty("numsearches"));
 				
 				try {
 					Arguments.set(inputFile, parser, 

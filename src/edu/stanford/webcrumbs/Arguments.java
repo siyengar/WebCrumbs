@@ -50,6 +50,10 @@ public class Arguments {
 		return false;
 	}
 	
+	public static void putArg(String key, String value){
+		argumentMap.put(key, value);
+	}
+	
 	public static String getVis(){
 		return vis;
 	}
