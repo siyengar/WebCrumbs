@@ -17,7 +17,6 @@ You can render and search through graphs using the WebCrumbs framework.
 
 Right click links or nodes to view their properties. To search, either highlight any text in a text box, or put a string into the search box to the right of the screen on click on one of the top strings listed by frequency.
 
-You can also plug in your own rankers which allow you to both change the color and the 
-size of the nodes in the graph that you observe. 
+You can also plug in your own rankers which allow you to both change the color and the size of the nodes in the graph that you observe. 
 
 WebCrumbs makes even the visualization libraries pluggable (more work to allow that fully is on my TODO list).
