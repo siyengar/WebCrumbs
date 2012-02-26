@@ -8,14 +8,19 @@ package edu.stanford.webcrumbs.visualization;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.RoundRectangle2D;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.GroupLayout;
@@ -25,8 +30,15 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+import javax.swing.UIManager;
+import javax.swing.border.BevelBorder;
+import javax.swing.border.Border;
+import javax.swing.border.EtchedBorder;
+
 
 import edu.stanford.webcrumbs.Arguments;
 import edu.stanford.webcrumbs.data.StringMatch;
@@ -272,12 +284,21 @@ public class PrefuseVis implements edu.stanford.webcrumbs.visualization.Visualiz
 	
 	
 	class SearchBoxListener implements ActionListener{
+		JTextField text;
 		
-		public void search(String selText){
-			List<StringMatch> sm = null;
-			if (selText != null)
-				sm = index.getMatches(selText);
-
+		public SearchBoxListener(JTextField text){
+			this.text = text;
+		}
+		
+		public SearchBoxListener(){
+			
+		}
+		
+		public void repaintGraph(){
+			vis.run("repaint");
+		}
+		
+		public void clearPreviousState(){
 			for (ItemState item: previousState){
 				if (item.type.equals("Node")){
 					int color = nodeColorAction.getColor(item.item);
@@ -288,6 +309,14 @@ public class PrefuseVis implements edu.stanford.webcrumbs.visualization.Visualiz
 				}
 			}
 			previousState.clear();
+		}
+		
+		public void search(String selText){
+			List<StringMatch> sm = null;
+			if (selText != null)
+				sm = index.getMatches(selText);
+
+			clearPreviousState();
 			
 			if (sm != null){
 				for (StringMatch match: sm){
@@ -310,23 +339,58 @@ public class PrefuseVis implements edu.stanford.webcrumbs.visualization.Visualiz
 					}
 				}
 			}
-			vis.run("repaint");
+			repaintGraph();
 		}
 		
 		public void actionPerformed(ActionEvent e){
-			JTextField text = (JTextField)e.getSource();
 			String selText = text.getText();
 			search(selText);
 		}
 	}   
 	
-	class TopQueryListener extends SearchBoxListener implements ActionListener {
-
+	class TopQueryListener extends SearchBoxListener implements MouseListener {
+		JLabel currentSelected; 
+		Border loweredBorder = BorderFactory.createBevelBorder(BevelBorder.LOWERED);
+		Border originalBorder;
+		
 		@Override
-		public void actionPerformed(ActionEvent e) {
-			JButton sourceButton = (JButton)e.getSource();
+		public void mouseClicked(MouseEvent e) {
+			
+			JLabel sourceButton = (JLabel)e.getSource();
+			if (currentSelected != null){
+				if (sourceButton == currentSelected){
+					super.clearPreviousState();
+					currentSelected.setBorder(originalBorder);
+					currentSelected = null;
+					repaintGraph();
+					return;
+				}
+				currentSelected.setBorder(originalBorder);
+			}
 			String selText = sourceButton.getText();
 			super.search(selText);
+			
+			currentSelected = sourceButton;
+			originalBorder = currentSelected.getBorder();
+			currentSelected.setBorder(loweredBorder);
+		}
+
+		@Override
+		public void mouseEntered(MouseEvent e) {
+			
+		}
+
+		@Override
+		public void mouseExited(MouseEvent e) {
+			
+		}
+
+		@Override
+		public void mousePressed(MouseEvent e) {
+		}
+
+		@Override
+		public void mouseReleased(MouseEvent e) {
 		}
 
 	}
@@ -464,14 +528,23 @@ public class PrefuseVis implements edu.stanford.webcrumbs.visualization.Visualiz
 			if (Arguments.hasArg("numsearches")){
 				num = Integer.parseInt(Arguments.getArg("numsearches"));
 			}
+			Border labelBorder = BorderFactory.createBevelBorder(BevelBorder.RAISED,
+								new Color(255, 255, 255, 10), new Color(0, 0, 0, 10));
+			JSeparator seperate = new JSeparator();
+			
 			ArrayList<String> topStrings = index.getTopStrings(num);
 			GridLayout grid = new GridLayout(num, 1);
 			resultPanel.setLayout(grid);
 			TopQueryListener topqueries = new TopQueryListener();
 			for (String topString : topStrings){
-				JButton label = new JButton(topString);
+				JLabel label = new JLabel(topString);
+				label.setBackground(ColorLib.getColor(255, 255, 255));
+				
+				label.setBorder(labelBorder);
+				label.setHorizontalAlignment(SwingConstants.CENTER);
+				
 				resultPanel.add(label);
-				label.addActionListener(topqueries);
+				label.addMouseListener(topqueries);
 			}
 		}
 	}
@@ -606,15 +679,21 @@ public class PrefuseVis implements edu.stanford.webcrumbs.visualization.Visualiz
 		JTextField searchField = new JTextField(1);
 		
 		JPanel searchPanel = new JPanel();
+		
 		resultPanel = new JPanel();
+		
+		
 		fillResultPanel();
 		
 		JButton searchButton = new JButton("search");
 		GroupLayout searchPanelLayout = new GroupLayout(searchPanel);
 		searchPanel.setLayout(searchPanelLayout);
 		
+		JSeparator seperate = new JSeparator();
+		
 		searchPanelLayout.setHorizontalGroup(searchPanelLayout.createParallelGroup().
 											 addComponent(searchField).
+											 addComponent(seperate).
 											 addComponent(resultPanel, Alignment.CENTER, 150, 150, 200).
 											 addComponent(searchButton, Alignment.CENTER, 150, 150, 200));
 		
@@ -630,12 +709,13 @@ public class PrefuseVis implements edu.stanford.webcrumbs.visualization.Visualiz
 										   addComponent(searchField, 30, 30, 30).
 										   addComponent(searchButton).
 										   addGap(30).
+										   addComponent(seperate, 1, 1, 1).
 										   addComponent(resultPanel, 20 * num, 20 * num, 20 * num));
 											
-		
+		searchPanelLayout.setAutoCreateGaps(true);
 		//searchPanel.add(searchField);
 		//searchPanel.add(searchButton);
-		searchButton.addActionListener(new SearchBoxListener());
+		searchButton.addActionListener(new SearchBoxListener(searchField));
 		
 		/*
 		Box box = new Box(BoxLayout.X_AXIS);

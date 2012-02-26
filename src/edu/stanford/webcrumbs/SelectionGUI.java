@@ -27,6 +27,8 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTable;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.table.AbstractTableModel;
 
 public class SelectionGUI extends JFrame{
@@ -213,6 +215,14 @@ public class SelectionGUI extends JFrame{
 	
 	public SelectionGUI(String title){
 		super(title);
+		
+		 try {
+			UIManager.setLookAndFeel(
+			            UIManager.getSystemLookAndFeelClassName());
+		} catch (Exception e){
+			e.printStackTrace();
+		}
+		
 		instance = this;
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		JPanel panel = new JPanel();
