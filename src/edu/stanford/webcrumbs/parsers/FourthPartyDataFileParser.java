@@ -27,7 +27,7 @@ import edu.stanford.webcrumbs.util.CommonUtil;
 import edu.stanford.webcrumbs.util.UrlUtil;
 
 public class FourthPartyDataFileParser implements Parser {
-	public ArrayList<Connection> parse(){
+	public ArrayList<Page> parse(){
 		String[] websiteList = Arguments.getWebsites();
 		
 		Map<String, Boolean> websites = 
@@ -44,7 +44,7 @@ public class FourthPartyDataFileParser implements Parser {
 			System.out.println(web);
 		}
 		
-		ArrayList<Connection> connections = new ArrayList<Connection>();
+		ArrayList<Connection> redirectConnections = new ArrayList<Connection>();
 		Map<String, Page> refererLookup = new TreeMap<String, Page>();
 		ArrayList<PendingConnection> pendingReferers = 
 			new ArrayList<PendingConnection>();
@@ -81,7 +81,8 @@ public class FourthPartyDataFileParser implements Parser {
 								new Connection(requestCookie, responseCookie, 
 										p, current, method, 
 										queryString, status, "");
-							connections.add(conn);
+							//connections.add(conn);
+							p.addConnection(conn);
 							if (p.getTaint()){
 								current.setTaint();
 							}
@@ -132,14 +133,18 @@ public class FourthPartyDataFileParser implements Parser {
 					current.setTaint();
 				}
 
-				if(!referrer.equals("")){
+				if (!referrer.equals("")){
 					Page p = refererLookup.get(refererDomain);
 					if (p != null){
 						// dont allow self loops
 						if (!p.equals(current)){
 							Connection conn = new Connection(requestCookie, responseCookie, 
 									p, current, method, queryString, status, redirectDomain);
-							connections.add(conn);
+							//connections.add(conn);
+							p.addConnection(conn);
+							if (conn.isRedirect()){
+								redirectConnections.add(conn);
+							}
 							if (p.getTaint()){
 								current.setTaint();
 							}
@@ -172,7 +177,12 @@ public class FourthPartyDataFileParser implements Parser {
 							referrer, pending.getPage(), 
 							pending.getMethod(), pending.getQueryString(), 
 							pending.getStatus(), pending.getRedirectedURL());
-					connections.add(conn);
+					//connections.add(conn);
+					referrer.addConnection(conn);
+					if (conn.isRedirect()){
+						redirectConnections.add(conn);
+					}
+					
 					if (referrer.getTaint()){
 						pending.getPage().setTaint();
 					}
@@ -195,7 +205,11 @@ public class FourthPartyDataFileParser implements Parser {
 								p, pending.getPage(), 
 								pending.getMethod(), pending.getQueryString(), 
 								pending.getStatus(), pending.getRedirectedURL());
-					connections.add(conn);
+					//connections.add(conn);
+					p.addConnection(conn);
+					if (conn.isRedirect()){
+						redirectConnections.add(conn);
+					}
 
 					if (p.getTaint()){
 						pending.getPage().setTaint();
@@ -206,59 +220,61 @@ public class FourthPartyDataFileParser implements Parser {
 		}
 		
 		//setting up redirect connections
-		int l = connections.size();
+		int l = redirectConnections.size();
 		for (int i = 0; i < l ; i++) {
-			Connection conn = connections.get(i);
-			if (conn.isRedirect()){
-				// no self loops
-				if (conn.getRedirectedURL().equals(conn.getTarget().getURL()))
-					continue;
-				String redirectedDomain = conn.getRedirectedURL(); 
-				Page redirected = refererLookup.get(redirectedDomain);
-				
-				if (redirected == null){
-					redirected = 
-						new Page(redirectedDomain, redirectedDomain, 
-								conn.getTarget().getURL());
-					
-					if (websites.containsKey(redirected.getDomain())){
-						redirected.setTaint();
-					}
-					
-					refererLookup.put(redirectedDomain, redirected);
-					pages.add(redirected);
-				}
-				
-				redirected.setReferrer(conn.getTarget().getDomain());
-				
-				RedirectConnection rc = 
-					new RedirectConnection(conn.getRequestCookie(), 
-							conn.getReponseCookie(), 
-							conn.getTarget(), redirected, 
-							conn.getMethod(), conn.getQueryString(), 
-							conn.getStatus(), conn.getRedirectedURL());
-				connections.add(rc);
+			Connection conn = redirectConnections.get(i);
 
-				if (conn.getTarget().getTaint()){
+			// no self loops
+			if (conn.getRedirectedURL().equals(conn.getTarget().getURL()))
+				continue;
+			String redirectedDomain = conn.getRedirectedURL(); 
+			Page redirected = refererLookup.get(redirectedDomain);
+
+			if (redirected == null){
+				redirected = 
+					new Page(redirectedDomain, redirectedDomain, 
+							conn.getTarget().getURL());
+
+				if (websites.containsKey(redirected.getDomain())){
 					redirected.setTaint();
 				}
+
+				refererLookup.put(redirectedDomain, redirected);
+				pages.add(redirected);
+			}
+
+			redirected.setReferrer(conn.getTarget().getDomain());
+
+			RedirectConnection rc = 
+				new RedirectConnection(conn.getRequestCookie(), 
+						conn.getReponseCookie(), 
+						conn.getTarget(), redirected, 
+						conn.getMethod(), conn.getQueryString(), 
+						conn.getStatus(), conn.getRedirectedURL());
+			//connections.add(rc);
+			conn.getTarget().addConnection(rc);
+
+			if (conn.getTarget().getTaint()){
+				redirected.setTaint();
 			}
 		}
 		
-		ArrayList<Connection> connectionWebsiteList = new ArrayList<Connection>();
-		
+		ArrayList<Page> filteredPages = new ArrayList<Page>();
+
 		// filter step
-		for (Connection conn: connections){
+		for (Page page : pages){
 			if (Arguments.getFilter()){ 
-				if (!conn.getSource().getTaint() || !conn.getTarget().getTaint())
+				if (!page.getTaint())
 					continue;
+				else{
+					filteredPages.add(page);
+				}
 			}
-			if (conn.getSource().getReferrer() != null && 
-					conn.getTarget().getReferrer() != null){
-				connectionWebsiteList.add(conn);
+			else{
+				filteredPages = pages;
 			}
 
 		}
-		return connectionWebsiteList;
+		return filteredPages;
 	}
 }

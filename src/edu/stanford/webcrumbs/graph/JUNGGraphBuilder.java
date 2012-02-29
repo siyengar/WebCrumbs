@@ -16,23 +16,19 @@ import edu.uci.ics.jung.graph.Graph;
 public class JUNGGraphBuilder implements GraphBuilder<Graph<Page, Connection>>{
 
 	@Override
-	public Graph<Page, Connection> createGraph(List<Connection> connections){
+	public Graph<Page, Connection> createGraph(List<Page> pages){
 		Graph<Page, Connection> jungGraph = 
 			new DirectedSparseGraph<Page, Connection>();
 		
-	    Map<Page, Boolean> pageMap = new HashMap<Page, Boolean>();
-	    
-		for (Connection conn: connections){
-			pageMap.put(conn.getSource(), true);
-			pageMap.put(conn.getTarget(), true);
-		}
-		for (Page page: pageMap.keySet()){
+		for (Page page: pages){
 			jungGraph.addVertex(page);
 		}
-		for (Connection conn: connections){
-			jungGraph.addEdge(conn, conn.getSource(), conn.getTarget());
-		}
 		
+		for (Page page: pages){
+			for (Connection conn: page.getConnections()){
+				jungGraph.addEdge(conn, conn.getSource(), conn.getTarget());
+			}
+		}
 		return jungGraph;
 	}
 	

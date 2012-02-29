@@ -59,9 +59,7 @@ public class PageRank implements NodeRanker<Tuple>{
 	}
 	
 	public void run() throws Exception{
-		if (!Arguments.hasArg("-convert")){
-			throw new Exception("PageRank requires the -convert option to be specified");
-		}
+		PrefuseToJUNG.convert(Page.getPages());
 			
 		this.jungGraph = PrefuseToJUNG.getGraph();
 		for (Page p : jungGraph.getVertices()){

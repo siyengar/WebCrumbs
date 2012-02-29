@@ -1,5 +1,9 @@
 package edu.stanford.webcrumbs.data;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+
 /*
  * The Page class represents either
  * a single page or a domain. The properties
@@ -32,6 +36,10 @@ public class Page implements Comparable<Page>{
 	
 	// special property for limiting output
 	boolean taint = false;
+	
+	private HashSet<Connection> connections = new HashSet<Connection>();
+	
+	static List<Page> pages;
 	
 	// special property to tell whether the page
 	// is the root
@@ -136,6 +144,7 @@ public class Page implements Comparable<Page>{
 		return false;
 	}
 	
+	
 	@Override
 	public int compareTo(Page o) {
 		return url.compareTo(o.url);
@@ -145,4 +154,21 @@ public class Page implements Comparable<Page>{
 	public String toString(){
 		return domain;
 	}
+	
+	public void addConnection(Connection conn){
+		connections.add(conn);
+	}
+	
+	public HashSet<Connection> getConnections(){
+		return connections;
+	}
+	
+	public static void setPages(List<Page> pageList){
+		pages = pageList;
+	}
+	
+	public static List<Page> getPages(){
+		return pages;
+	}
+	
 }

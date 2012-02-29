@@ -9,7 +9,8 @@ package edu.stanford.webcrumbs.graph;
 
 import java.util.List;
 import edu.stanford.webcrumbs.data.Connection;
+import edu.stanford.webcrumbs.data.Page;
 
 public interface GraphBuilder <X>{
-	public X createGraph(List<Connection> connections);
+	public X createGraph(List<Page> pages);
 }

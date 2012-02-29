@@ -51,9 +51,7 @@ public class InDegreeRanker implements
 	}
 	
 	public void run() throws Exception{
-		if (!Arguments.hasArg("-convert")){
-			throw new Exception("-convert option needs to be specified for indegree ranker");
-		}
+		PrefuseToJUNG.convert(Page.getPages());
 		
 		jungGraph = PrefuseToJUNG.getGraph();
 		for (Page p : jungGraph.getVertices()){

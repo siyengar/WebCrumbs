@@ -82,4 +82,19 @@ public class Connection{
 			redirect = true;
 		}
 	}
+
+	public boolean equals(Object other){
+		if (other instanceof Connection){
+			Connection otherConn = (Connection)other;
+			if (otherConn.target == this.target){
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public int hashCode(){
+		return (target.hashCode()) % Integer.MAX_VALUE;
+	}
+	
 }

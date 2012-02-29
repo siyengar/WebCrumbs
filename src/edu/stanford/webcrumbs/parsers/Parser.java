@@ -9,9 +9,10 @@ package edu.stanford.webcrumbs.parsers;
 
 import java.util.List;
 import edu.stanford.webcrumbs.data.Connection;
+import edu.stanford.webcrumbs.data.Page;
 
 
 // X is input type
 public interface Parser{
-	public List<Connection> parse();  
+	public List<Page> parse();  
 }

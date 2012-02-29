@@ -13,9 +13,9 @@ import edu.uci.ics.jung.graph.Graph;
 public class PrefuseToJUNG {
 	static Graph<Page, Connection> jungGraph;
 	
-	public static void convert(List<Connection> connections){
+	public static void convert(List<Page> pages){
 		JUNGGraphBuilder builder = new JUNGGraphBuilder();
-		jungGraph = builder.createGraph(connections);
+		jungGraph = builder.createGraph(pages);
 	}
 	
 	public static Graph<Page, Connection> getGraph(){

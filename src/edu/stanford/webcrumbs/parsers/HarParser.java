@@ -35,7 +35,7 @@ import edu.stanford.webcrumbs.data.RedirectConnection;
 
 public class HarParser implements Parser{
 	
-	public ArrayList<Connection> parse(){
+	public ArrayList<Page> parse(){
 		FileInputStream fi = null;
 		FileInputStream fi2 = null;
 
@@ -124,8 +124,8 @@ public class HarParser implements Parser{
 			new ArrayList<PendingConnection>();
 		ArrayList<Page> pages = new ArrayList<Page>();
 		
-		ArrayList<Connection> connections = new ArrayList<Connection>();
-		
+		//ArrayList<Connection> connections = new ArrayList<Connection>();
+		ArrayList<Connection> redirectConnections = new ArrayList<Connection>();
 		// iterate thru all the web pages
 		for (int i = 0; i < webPages.length(); i++){
 			JSONObject page = null;
@@ -239,7 +239,11 @@ public class HarParser implements Parser{
 									p, current, 
 									method, queryString, 
 									status, redirectedURL);
-						connections.add(conn);
+						//connections.add(conn);
+						if (conn.isRedirect()){
+							redirectConnections.add(conn);
+						}
+						p.addConnection(conn);
 					}
 				}
 				else{
@@ -275,7 +279,11 @@ public class HarParser implements Parser{
 								referrer, pending.getPage(), 
 								pending.getMethod(), pending.getQueryString(), 
 								pending.getStatus(), pending.getRedirectedURL());
-					connections.add(conn);
+					//connections.add(conn);
+					if (conn.isRedirect()){
+						redirectConnections.add(conn);
+					}
+					referrer.addConnection(conn);
 				}
 			}
 			else{
@@ -292,51 +300,56 @@ public class HarParser implements Parser{
 								newReferrerPage, pending.getPage(), 
 								pending.getMethod(), pending.getQueryString(), 
 								pending.getStatus(), pending.getRedirectedURL());
-					connections.add(conn);
+					//connections.add(conn);
+					if (conn.isRedirect()){
+						redirectConnections.add(conn);
+					}
+					newReferrerPage.addConnection(conn);
 				}
 			}
 		}
 		
 		//setting up redirect connections
-		int l = connections.size();
+		int l = redirectConnections.size();
 		for(int i = 0; i < l ; i++){
-			Connection conn = connections.get(i);
-			if (conn.isRedirect()){
-				String redirectedURL = conn.getRedirectedURL();
-				if (redirectedURL.charAt(0) == '/'){
-					StringBuffer sb = new StringBuffer();
-					sb.append("http://");
-					sb.append(conn.getTarget().getDomain());
-					sb.append(conn.getRedirectedURL());
-					redirectedURL = sb.toString();
-				}
-				
-				String redirectedDomain = UrlUtil.getDomain(redirectedURL);
-				 
-				Page redirectedPage = refererLookup.get(redirectedURL);
-				
-				if (redirectedPage == null){
-					redirectedPage = 
-						new Page(redirectedDomain, 
-								redirectedURL, conn.getTarget().getURL());
-					refererLookup.put(redirectedURL, redirectedPage);
-					pages.add(redirectedPage);
-				}
-				
-				redirectedPage.setReferrer(conn.getTarget().getURL());
-				// TODO: put redirected query string
-				// no self loops
-				if (!conn.getRedirectedURL().equals(conn.getTarget().getURL())){
-					RedirectConnection rc = 
-						new RedirectConnection(conn.getRequestCookie(), 
-								conn.getReponseCookie(), 
-								conn.getTarget(), redirectedPage, 
-								conn.getMethod(), conn.getQueryString(), 
-								conn.getStatus(), redirectedURL);
-					connections.add(rc);
-				}
+			Connection conn = redirectConnections.get(i);
+
+			String redirectedURL = conn.getRedirectedURL();
+			if (redirectedURL.charAt(0) == '/'){
+				StringBuffer sb = new StringBuffer();
+				sb.append("http://");
+				sb.append(conn.getTarget().getDomain());
+				sb.append(conn.getRedirectedURL());
+				redirectedURL = sb.toString();
+			}
+
+			String redirectedDomain = UrlUtil.getDomain(redirectedURL);
+
+			Page redirectedPage = refererLookup.get(redirectedURL);
+
+			if (redirectedPage == null){
+				redirectedPage = 
+					new Page(redirectedDomain, 
+							redirectedURL, conn.getTarget().getURL());
+				refererLookup.put(redirectedURL, redirectedPage);
+				pages.add(redirectedPage);
+			}
+
+			redirectedPage.setReferrer(conn.getTarget().getURL());
+			// TODO: put redirected query string
+			// no self loops
+			if (!conn.getRedirectedURL().equals(conn.getTarget().getURL())){
+				RedirectConnection rc = 
+					new RedirectConnection(conn.getRequestCookie(), 
+							conn.getReponseCookie(), 
+							conn.getTarget(), redirectedPage, 
+							conn.getMethod(), conn.getQueryString(), 
+							conn.getStatus(), redirectedURL);
+				//connections.add(rc);
+				conn.getTarget().addConnection(rc);
 			}
 		}
-		return connections;
+
+		return pages;
 	}
 }
