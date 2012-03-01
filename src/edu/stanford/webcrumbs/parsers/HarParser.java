@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.json.JSONArray;
@@ -35,7 +36,7 @@ import edu.stanford.webcrumbs.data.RedirectConnection;
 
 public class HarParser implements Parser{
 	
-	public ArrayList<Page> parse(){
+	public List<Page> parse(){
 		FileInputStream fi = null;
 		FileInputStream fi2 = null;
 
@@ -232,7 +233,7 @@ public class HarParser implements Parser{
 				Page p = refererLookup.get(referer);
 				if (p != null){
 					// no self loops
-					if (!p.equals(current)){
+					if (Arguments.hasArg("allowSelfLoop") || !p.equals(current)){
 						Connection conn = 
 							new Connection(requestCookie, 
 									responseCookie, 
@@ -272,7 +273,7 @@ public class HarParser implements Parser{
 			
 			if (referrer != null){
 				// no self loops
-				if (!referrer.equals(pending.getPage())){
+				if (Arguments.hasArg("allowSelfLoop") || !referrer.equals(pending.getPage())){
 					Connection conn = 
 						new Connection(pending.getRequestCookie(), 
 								pending.getReponseCookie(), 
@@ -290,7 +291,7 @@ public class HarParser implements Parser{
 				Page newReferrerPage = 
 					new Page(referrerDomain, pending.getPage().getReferrer(), "");
 				// no self loops
-				if (!newReferrerPage.equals(pending.getPage())){
+				if (Arguments.hasArg("allowSelfLoop") || !newReferrerPage.equals(pending.getPage())){
 					refererLookup.put(pending.getPage().getReferrer(), newReferrerPage);
 					pages.add(newReferrerPage);
 
@@ -338,7 +339,7 @@ public class HarParser implements Parser{
 			redirectedPage.setReferrer(conn.getTarget().getURL());
 			// TODO: put redirected query string
 			// no self loops
-			if (!conn.getRedirectedURL().equals(conn.getTarget().getURL())){
+			if (Arguments.hasArg("allowSelfLoop") || !conn.getRedirectedURL().equals(conn.getTarget().getURL())){
 				RedirectConnection rc = 
 					new RedirectConnection(conn.getRequestCookie(), 
 							conn.getReponseCookie(), 
@@ -349,7 +350,6 @@ public class HarParser implements Parser{
 				conn.getTarget().addConnection(rc);
 			}
 		}
-
 		return pages;
 	}
 }

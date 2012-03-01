@@ -13,6 +13,7 @@ package edu.stanford.webcrumbs.parsers;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -27,7 +28,7 @@ import edu.stanford.webcrumbs.util.CommonUtil;
 import edu.stanford.webcrumbs.util.UrlUtil;
 
 public class FourthPartyDataFileParser implements Parser {
-	public ArrayList<Page> parse(){
+	public List<Page> parse(){
 		String[] websiteList = Arguments.getWebsites();
 		
 		Map<String, Boolean> websites = 
@@ -76,7 +77,7 @@ public class FourthPartyDataFileParser implements Parser {
 					Page p = refererLookup.get(referrerDomain);
 					if (p != null){
 						// dont allow self loops
-						if (!p.equals(current)){
+						if (Arguments.hasArg("allowSelfLoop") || !p.equals(current)){
 							Connection conn = 
 								new Connection(requestCookie, responseCookie, 
 										p, current, method, 
@@ -137,7 +138,7 @@ public class FourthPartyDataFileParser implements Parser {
 					Page p = refererLookup.get(refererDomain);
 					if (p != null){
 						// dont allow self loops
-						if (!p.equals(current)){
+						if (Arguments.hasArg("allowSelfLoop") || !p.equals(current)){
 							Connection conn = new Connection(requestCookie, responseCookie, 
 									p, current, method, queryString, status, redirectDomain);
 							//connections.add(conn);
@@ -225,7 +226,7 @@ public class FourthPartyDataFileParser implements Parser {
 			Connection conn = redirectConnections.get(i);
 
 			// no self loops
-			if (conn.getRedirectedURL().equals(conn.getTarget().getURL()))
+			if (!Arguments.hasArg("allowSelfLoop") && conn.getRedirectedURL().equals(conn.getTarget().getURL()))
 				continue;
 			String redirectedDomain = conn.getRedirectedURL(); 
 			Page redirected = refererLookup.get(redirectedDomain);

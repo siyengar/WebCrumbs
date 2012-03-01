@@ -13,6 +13,7 @@ package edu.stanford.webcrumbs.parsers;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -27,7 +28,7 @@ import edu.stanford.webcrumbs.data.PendingConnection;
 import edu.stanford.webcrumbs.data.RedirectConnection;
 
 public class FourthPartyParser implements Parser {
-	public ArrayList<Page> parse(){
+	public List<Page> parse(){
 		SQLLiteUtil db = null;
 		try {
 			db = new SQLLiteUtil(Arguments.getFile());
@@ -159,7 +160,7 @@ public class FourthPartyParser implements Parser {
 					Page p = refererLookup.get(refererDomain);
 					if (p != null){
 						// no self loops
-						if (!p.equals(current)){
+						if (Arguments.hasArg("allowSelfLoop") || !p.equals(current)){
 							Connection conn = new Connection(requestCookie, responseCookie, 
 									p, current, method, queryString, status, redirectDomain);
 							//connections.add(conn);
@@ -194,7 +195,7 @@ public class FourthPartyParser implements Parser {
 			
 			if(referrer != null){
 				// no self loops
-				if (!referrer.equals(pending.getPage())){
+				if (Arguments.hasArg("allowSelfLoop") || !referrer.equals(pending.getPage())){
 					Connection conn = 
 						new Connection(pending.getRequestCookie(), 
 								pending.getReponseCookie(), 
@@ -217,7 +218,7 @@ public class FourthPartyParser implements Parser {
 				if (!referrerDomain.equals("")) continue;
 				
 				// no self loops
-				if (!p.equals(pending.getPage())){
+				if (Arguments.hasArg("allowSelfLoop") || !p.equals(pending.getPage())){
 					if (websites.containsKey(p.getDomain())){
 						p.setTaint();
 					}
@@ -247,7 +248,7 @@ public class FourthPartyParser implements Parser {
 			Connection conn = redirectConnection.get(i);
 
 			// no self loops
-			if (conn.getRedirectedURL().equals(conn.getTarget().getURL()))
+			if (!Arguments.hasArg("allowSelfLoop") && conn.getRedirectedURL().equals(conn.getTarget().getURL()))
 				continue;
 			String redirectedDomain = conn.getRedirectedURL(); 
 			Page redirected = refererLookup.get(redirectedDomain);

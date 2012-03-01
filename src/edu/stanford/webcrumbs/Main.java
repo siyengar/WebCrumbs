@@ -78,11 +78,6 @@ public class Main {
 		
 		
 		if (Arguments.hasNodeRanker()){	
-			// the prefuse graph is slow to iterate over, so 
-			// I use a JUNG graph from the JUNG library to run
-			// rankers. But this is only required by some rankers 
-			// so it activates on -convert option
-			
 			Arguments.getNodeRanker().run();
 		}
 		

@@ -51,6 +51,7 @@ public class PrefuseGraphBuilder implements GraphBuilder<Graph>{
 		for (int i = 0; i < pages.size(); i++){
 			Page current = pages.get(i);
 			for (Connection c : current.getConnections()){
+				
 				Page source = c.getSource();
 				Page target = c.getTarget();
 
@@ -100,7 +101,6 @@ public class PrefuseGraphBuilder implements GraphBuilder<Graph>{
 		}
 		Graph requestMap = 
 			new Graph(nodes,edges, true, "key", "source", "target");
-
 		return requestMap;
 	}
 	

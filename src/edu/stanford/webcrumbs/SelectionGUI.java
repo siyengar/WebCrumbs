@@ -53,7 +53,7 @@ public class SelectionGUI extends JFrame{
 						{"outputFile", ""}, 
 						{"dataFile2", ""}, 
 						{"filter", "true"}, 
-						{"convert", "false"},
+						{"allowSelfLoop", "false"},
 						{"rankerfile", "data/indegree_similar"},
 						{"numsearches", "20"}}; 
 	
@@ -103,6 +103,7 @@ public class SelectionGUI extends JFrame{
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			if (inputFile != null){
+				Arguments.clearMap();
 				String parser = "edu.stanford.webcrumbs.parsers." + chooseParser.getSelectedItem().toString();
 				String ignoreList = tableData.getProperty("ignoreList");
 				String outputFile = tableData.getProperty("outputFile");
@@ -128,10 +129,10 @@ public class SelectionGUI extends JFrame{
 				
 				String rankerFile = tableData.getProperty("rankerfile");
 				
-				String convert = tableData.getProperty("convert");
+				String allowSelfLoop = tableData.getProperty("allowSelfLoop");
 				
-				if (convert.equals("false")){
-					convert = null;
+				if (!allowSelfLoop.equals("true")){
+					allowSelfLoop = null;
 				}
 				
 				String numsearches = tableData.getProperty("numsearches");
@@ -140,7 +141,7 @@ public class SelectionGUI extends JFrame{
 				try {
 					Arguments.set(inputFile, parser, 
 							ignoreList, outputFile, dataFile2, ranker, 
-							websites, rankerFile, convert);
+							websites, rankerFile, allowSelfLoop);
 					Main.runSimulation(DISPOSE_ON_CLOSE);
 					errorLabel.setText("");
 				} catch (Exception e) {

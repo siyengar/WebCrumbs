@@ -36,9 +36,9 @@ public class Arguments {
 	private static boolean filter = true;
 	private static String vis = "domain";
 	
+	
 	private static NodeRanker rankerInstance;
 	
-	static final String customOptions[] = {"-convert", "-rankerFile"}; 
 	
 	private static Map<String, String> argumentMap = 
 		new HashMap<String, String>();
@@ -159,7 +159,7 @@ public class Arguments {
 					  String dataFile2, String ranker,
 					  String[] websites,
 					  String rankerFile,
-					  String convert) throws InstantiationException, 
+					  String allowSelfLoop) throws InstantiationException, 
 					  IllegalAccessException, ClassNotFoundException {
 		Arguments.file = file;
 		Arguments.type = type;
@@ -174,8 +174,12 @@ public class Arguments {
 		Arguments.websites = websites;
 		if (rankerFile != null)
 			argumentMap.put("-rankerfile", rankerFile);
-		if (convert != null)
-			argumentMap.put("-convert", convert);
+		if (allowSelfLoop != null)
+			argumentMap.put("allowSelfLoop", allowSelfLoop);
+	}
+	
+	public static void clearMap(){
+		argumentMap.clear();
 	}
 	
 	
