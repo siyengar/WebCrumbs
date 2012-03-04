@@ -66,6 +66,9 @@ public class PageRank implements NodeRanker<Tuple>{
 			pageMap.put(p.getId(), p);
 		}
 		
+		System.out.println("nodes:" + jungGraph.getVertexCount());
+		System.out.println("edges:" + jungGraph.getEdgeCount());
+		
 		KStepMarkov<Page, Connection> ranker = 
 			new KStepMarkov<Page, Connection>(jungGraph, 10000);
 		ranker.acceptDisconnectedGraph(true);
@@ -85,7 +88,12 @@ public class PageRank implements NodeRanker<Tuple>{
 	}
 	
 	public Double getSize(Tuple node){
-		Page page = pageMap.get(node.getString("domain"));
+		Integer domainKey = node.getInt("key");
+		
+		Page page = pageMap.get(domainKey);
+		if (page== null){
+		//	System.out.println(node.getString("domain"));
+		}
 		if (page == null){
 			return MIN_SIZE;
 		}

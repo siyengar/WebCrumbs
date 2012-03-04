@@ -8,6 +8,7 @@ import java.util.List;
 
 import javax.swing.JFrame;
 
+import prefuse.data.Edge;
 import prefuse.data.Graph;
 import edu.stanford.webcrumbs.Arguments;
 import edu.stanford.webcrumbs.graph.PrefuseGraphBuilder;
@@ -55,9 +56,15 @@ public class Main {
 			throw new Exception("no type specified");
 		}
 		
+		String taintDepth = Arguments.getArg("taintDepth");
+		try{
+			Page.TAINT_DEPTH = Integer.parseInt(taintDepth);
+		}catch (Exception e){
+			throw new Exception("invalid taint depth value");
+		}
+		
 		List<Page> pages = parser.parse();
 		Page.setPages(pages);
-		
 		
 		// if prefuse
 		GraphBuilder<Graph> graphbuilder = new PrefuseGraphBuilder();
@@ -71,11 +78,11 @@ public class Main {
 		// if prefuse
 		// TODO: support more 
 		PrefuseVis p_vis = new PrefuseVis(prefuseGraph, "domain", "root", "redirect");
+		
 		p_vis.setSearchIndex(search);
 		if (Arguments.hasNodeRanker()){
 			p_vis.setRanker(Arguments.getNodeRanker());
 		}
-		
 		
 		if (Arguments.hasNodeRanker()){	
 			Arguments.getNodeRanker().run();

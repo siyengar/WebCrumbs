@@ -52,7 +52,7 @@ public class RadialTreeLayout extends TreeLayout {
     protected double m_radiusInc;
     protected double m_theta1, m_theta2;
     protected boolean m_setTheta = false;
-    protected boolean m_autoScale = true;
+    protected boolean m_autoScale = false;
     
     protected Point2D m_origin;
     protected NodeItem m_prevRoot;
@@ -331,6 +331,8 @@ public class RadialTreeLayout extends TreeLayout {
         };
     }
     
+   
+    
     /**
      * Compute the layout.
      * @param n the root of the current subtree under consideration
@@ -352,6 +354,7 @@ public class RadialTreeLayout extends TreeLayout {
             NodeItem c = (NodeItem)childIter.next();
             Params cp = (Params)c.get(PARAMS);
             cfrac = cp.width / width;
+            
             if ( c.isExpanded() && c.getChildCount()>0 ) {
                 layout(c, r + m_radiusInc, theta1 + nfrac*dtheta, 
                        theta1 + (nfrac + cfrac) * dtheta);

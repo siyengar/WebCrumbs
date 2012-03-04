@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
+import edu.stanford.webcrumbs.Arguments;
+
 /*
  * The Page class represents either
  * a single page or a domain. The properties
@@ -15,12 +17,12 @@ import java.util.List;
  * Author : Subodh Iyengar
  */
 
-
 public class Page implements Comparable<Page>{
 	
 	// global static counter to 
 	// assign page ids
 	static int global_id = 0;
+	public static int TAINT_DEPTH = 4;
 	
 	// id of this page
 	private int id = 0;
@@ -118,6 +120,7 @@ public class Page implements Comparable<Page>{
 	public void setTaint(){
 		taint = true;
 	}
+	
 	
 	public boolean getTaint(){
 		return taint;

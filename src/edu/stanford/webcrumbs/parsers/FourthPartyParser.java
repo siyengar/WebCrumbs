@@ -83,9 +83,6 @@ public class FourthPartyParser implements Parser {
 				String referrerDomain = UrlUtil.getDomain(referrer);		
 
 				Page current = new Page(domain, domain, referrerDomain);
-				if (websites.containsKey(current.getDomain())){
-					current.setTaint();
-				}
 
 				if(!referrer.equals("")){
 					if (referrerDomain.equals(""))
@@ -100,9 +97,6 @@ public class FourthPartyParser implements Parser {
 
 							//connections.add(conn);
 							p.addConnection(conn);
-							if (p.getTaint()){
-								current.setTaint();
-							}
 						}
 					}
 					else{
@@ -110,8 +104,10 @@ public class FourthPartyParser implements Parser {
 								current, method, queryString, status, ""));
 					}
 				}
-				refererLookup.put(domain, current);
-				pages.add(current);
+				if (!refererLookup.containsKey(domain)){
+					refererLookup.put(domain, current);
+					pages.add(current);
+				}
 			}
 
 			rs.close();
@@ -151,11 +147,7 @@ public class FourthPartyParser implements Parser {
 				String refererDomain = UrlUtil.getDomain(referrer);		
 
 				Page current = new Page(domain, domain, refererDomain);
-
-				if (websites.containsKey(current.getDomain())){
-					current.setTaint();
-				}
-
+				
 				if(!referrer.equals("")){
 					Page p = refererLookup.get(refererDomain);
 					if (p != null){
@@ -168,9 +160,6 @@ public class FourthPartyParser implements Parser {
 							if (conn.isRedirect()){
 								redirectConnection.add(conn);
 							}
-							if (p.getTaint()){
-								current.setTaint();
-							}
 						}
 					}
 					else{
@@ -178,8 +167,10 @@ public class FourthPartyParser implements Parser {
 								current, method, queryString, status, redirectDomain));
 					}			
 				}
-				refererLookup.put(domain, current);
-				pages.add(current);
+				if (!refererLookup.containsKey(domain)){
+					refererLookup.put(domain, current);
+					pages.add(current);
+				}
 			}
 			System.out.println("done with redirect");
 
@@ -208,9 +199,6 @@ public class FourthPartyParser implements Parser {
 					if (conn.isRedirect()){
 						redirectConnection.add(conn);
 					}
-					if (referrer.getTaint()){
-						pending.getPage().setTaint();
-					}
 				}
 			}
 			else{
@@ -219,10 +207,6 @@ public class FourthPartyParser implements Parser {
 				
 				// no self loops
 				if (Arguments.hasArg("allowSelfLoop") || !p.equals(pending.getPage())){
-					if (websites.containsKey(p.getDomain())){
-						p.setTaint();
-					}
-
 					refererLookup.put(referrerDomain, p);
 
 					Connection conn = new Connection(pending.getRequestCookie(), pending.getReponseCookie(), 
@@ -234,10 +218,9 @@ public class FourthPartyParser implements Parser {
 					if (conn.isRedirect()){
 						redirectConnection.add(conn);
 					}
-					if (p.getTaint()){
-						pending.getPage().setTaint();
-					}	
-					pages.add(p);
+					if (!refererLookup.containsKey(p.getDomain())){
+						pages.add(p);
+					}
 				}
 			}
 		}
@@ -258,10 +241,6 @@ public class FourthPartyParser implements Parser {
 					new Page(redirectedDomain, redirectedDomain, 
 							conn.getTarget().getURL());
 
-				if (websites.containsKey(redirected.getDomain())){
-					redirected.setTaint();
-				}
-
 				refererLookup.put(redirectedDomain, redirected);
 				pages.add(redirected);
 			}
@@ -276,28 +255,36 @@ public class FourthPartyParser implements Parser {
 						conn.getStatus(), conn.getRedirectedURL());
 			//connections.add(rc);
 			conn.getTarget().addConnection(rc);
-
-			if (conn.getTarget().getTaint()){
-				redirected.setTaint();
-			}
 		}
 		
 		ArrayList<Page> filteredPages = new ArrayList<Page>();
 		
 		// filter step
-		for (Page page : pages){
-			if (Arguments.getFilter()){ 
-				if (!page.getTaint())
-					continue;
-				else{
-					filteredPages.add(page);
+		if (Arguments.getFilter()){
+			for (String pageDomain: websites.keySet()){
+				Page page = refererLookup.get(pageDomain);
+				doDFS(page, Page.TAINT_DEPTH, filteredPages, refererLookup);
+			}
+		}else{
+			filteredPages = pages;
+		}
+		
+		return filteredPages;
+	}
+	
+	void doDFS(Page current, int depth, List<Page> pages, 
+			Map<String, Page> refererLookup){
+		current.setTaint();
+		if (depth - 1 > 0){
+			for (Connection conn : current.getConnections()){
+				Page target = conn.getTarget();
+				target = refererLookup.get(target.getDomain());
+				
+				if (!target.getTaint()){
+					doDFS(target, depth - 1, pages, refererLookup);
 				}
 			}
-			else{
-				filteredPages = pages;
-			}
-
 		}
-		return filteredPages;
+		pages.add(current);
 	}
 }

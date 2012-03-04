@@ -55,7 +55,8 @@ public class SelectionGUI extends JFrame{
 						{"filter", "true"}, 
 						{"allowSelfLoop", "false"},
 						{"rankerfile", "data/indegree_similar"},
-						{"numsearches", "20"}}; 
+						{"numsearches", "20"},
+						{"taintDepth", "4"}}; 
 	
 		String[] colNames = {"key", "value"};
 		Map<String, Integer> propIdx = new HashMap<String, Integer>();
@@ -99,9 +100,10 @@ public class SelectionGUI extends JFrame{
 		
 	}
 	
-	class RunListener implements ActionListener{
+	class RunListener implements ActionListener, Runnable{
 		@Override
-		public void actionPerformed(ActionEvent arg0) {
+
+		public void run(){
 			if (inputFile != null){
 				Arguments.clearMap();
 				String parser = "edu.stanford.webcrumbs.parsers." + chooseParser.getSelectedItem().toString();
@@ -114,30 +116,30 @@ public class SelectionGUI extends JFrame{
 				if (dataFile2.equals("")){
 					dataFile2 = null;
 				}
-				
+
 				String webString = tableData.getProperty("websites");
 				String[] websites = webString.split(",");
-				
+
 				String ranker = chooseRanker.getSelectedItem().toString();
-				
+
 				if (ranker.equals("")){
 					ranker = null;
 				}
 				else{
 					ranker = "edu.stanford.webcrumbs.ranker." + ranker;
 				}
-				
+
 				String rankerFile = tableData.getProperty("rankerfile");
-				
+
 				String allowSelfLoop = tableData.getProperty("allowSelfLoop");
-				
+
 				if (!allowSelfLoop.equals("true")){
 					allowSelfLoop = null;
 				}
-				
+
 				String numsearches = tableData.getProperty("numsearches");
 				Arguments.putArg("numsearches", tableData.getProperty("numsearches"));
-				
+				Arguments.putArg("taintDepth", tableData.getProperty("taintDepth"));
 				try {
 					Arguments.set(inputFile, parser, 
 							ignoreList, outputFile, dataFile2, ranker, 
@@ -153,7 +155,15 @@ public class SelectionGUI extends JFrame{
 				runButton.setText("Select file, and then Run");
 			}
 		}
+
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			// TODO Auto-generated method stub
+			Thread t = new Thread(this);
+			t.start();
+		}	
 	}
+		
 	
 	class FileListener implements ActionListener{
 
@@ -169,7 +179,7 @@ public class SelectionGUI extends JFrame{
 		}	
 	}
 	
-	String[] getClassesInDir(String dirName) throws URISyntaxException, IOException{
+	String[] getClassesInDir(String dirName, String exclude) throws URISyntaxException, IOException{
 		
 		ArrayList<String> child = new ArrayList<String>();
 		URL classURI = getClass().getClassLoader().getResource(dirName);
@@ -184,7 +194,8 @@ public class SelectionGUI extends JFrame{
 				  if (name != null && name.startsWith(dirName)){
 					  if (name.length() > dirName.length()){
 						  String mod = name.substring(dirName.length(), name.length() - 6);
-						  child.add(mod);
+						  if (!mod.equals(exclude))
+							  child.add(mod);	
 					  }
 				  }
 			  }
@@ -201,11 +212,11 @@ public class SelectionGUI extends JFrame{
 	}
 	
 	String [] getParsers() throws URISyntaxException, IOException{
-		return getClassesInDir("edu/stanford/webcrumbs/parsers/");
+		return getClassesInDir("edu/stanford/webcrumbs/parsers/", "Parser");
 	}
 	
 	String[] getRankers() throws URISyntaxException, IOException{
-		String[] ranks = getClassesInDir("edu/stanford/webcrumbs/ranker/");
+		String[] ranks = getClassesInDir("edu/stanford/webcrumbs/ranker/", "NodeRanker");
 		String[] rankers = new String[ranks.length + 1];
 		rankers[0] = "";
 		for (int i = 1; i < rankers.length; ++i){

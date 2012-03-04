@@ -69,10 +69,7 @@ public class FourthPartyDataFileParser implements Parser {
 				String referrerDomain = UrlUtil.getDomain(referrer);		
 
 				Page current = new Page(domain, domain, referrerDomain);
-				if (websites.containsKey(current.getDomain())){
-					current.setTaint();
-				}
-
+				
 				if (!referrer.equals("")) {
 					Page p = refererLookup.get(referrerDomain);
 					if (p != null){
@@ -84,9 +81,6 @@ public class FourthPartyDataFileParser implements Parser {
 										queryString, status, "");
 							//connections.add(conn);
 							p.addConnection(conn);
-							if (p.getTaint()){
-								current.setTaint();
-							}
 						}
 					}
 					else{
@@ -95,8 +89,10 @@ public class FourthPartyDataFileParser implements Parser {
 								current, method, queryString, status, ""));
 					}
 				}
-				refererLookup.put(domain, current);
-				pages.add(current);
+				if (!refererLookup.containsKey(domain)){
+					pages.add(current);
+					refererLookup.put(domain, current);
+				}
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -130,10 +126,6 @@ public class FourthPartyDataFileParser implements Parser {
 
 				Page current = new Page(domain, domain, refererDomain);
 
-				if (websites.containsKey(current.getDomain())){
-					current.setTaint();
-				}
-
 				if (!referrer.equals("")){
 					Page p = refererLookup.get(refererDomain);
 					if (p != null){
@@ -146,9 +138,6 @@ public class FourthPartyDataFileParser implements Parser {
 							if (conn.isRedirect()){
 								redirectConnections.add(conn);
 							}
-							if (p.getTaint()){
-								current.setTaint();
-							}
 						}
 					}
 					else{
@@ -156,8 +145,10 @@ public class FourthPartyDataFileParser implements Parser {
 								current, method, queryString, status, redirectDomain));
 					}			
 				}
-				refererLookup.put(domain, current);
-				pages.add(current);
+				if (!refererLookup.containsKey(domain)){
+					refererLookup.put(domain, current);
+					pages.add(current);
+				}
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -183,23 +174,16 @@ public class FourthPartyDataFileParser implements Parser {
 					if (conn.isRedirect()){
 						redirectConnections.add(conn);
 					}
-					
-					if (referrer.getTaint()){
-						pending.getPage().setTaint();
-					}
 				}
 			}
 			else{
 				Page p = new Page(referrerDomain, referrerDomain, "");
 				if (!referrerDomain.equals("")) continue;
 
-				if (!p.equals(pending.getPage())){
-					if (websites.containsKey(p.getDomain())){
-						p.setTaint();
-					}
+				if (Arguments.hasArg("allowSelfLoop") || !p.equals(pending.getPage())){
 
 					refererLookup.put(referrerDomain, p);
-				
+					pages.add(p);
 					Connection conn = 
 						new Connection(pending.getRequestCookie(), 
 								pending.getReponseCookie(), 
@@ -211,11 +195,6 @@ public class FourthPartyDataFileParser implements Parser {
 					if (conn.isRedirect()){
 						redirectConnections.add(conn);
 					}
-
-					if (p.getTaint()){
-						pending.getPage().setTaint();
-					}	
-					pages.add(p);
 				}
 			}
 		}
@@ -226,7 +205,8 @@ public class FourthPartyDataFileParser implements Parser {
 			Connection conn = redirectConnections.get(i);
 
 			// no self loops
-			if (!Arguments.hasArg("allowSelfLoop") && conn.getRedirectedURL().equals(conn.getTarget().getURL()))
+			if (!Arguments.hasArg("allowSelfLoop") && 
+					conn.getRedirectedURL().equals(conn.getTarget().getURL()))
 				continue;
 			String redirectedDomain = conn.getRedirectedURL(); 
 			Page redirected = refererLookup.get(redirectedDomain);
@@ -235,11 +215,6 @@ public class FourthPartyDataFileParser implements Parser {
 				redirected = 
 					new Page(redirectedDomain, redirectedDomain, 
 							conn.getTarget().getURL());
-
-				if (websites.containsKey(redirected.getDomain())){
-					redirected.setTaint();
-				}
-
 				refererLookup.put(redirectedDomain, redirected);
 				pages.add(redirected);
 			}
@@ -254,28 +229,36 @@ public class FourthPartyDataFileParser implements Parser {
 						conn.getStatus(), conn.getRedirectedURL());
 			//connections.add(rc);
 			conn.getTarget().addConnection(rc);
-
-			if (conn.getTarget().getTaint()){
-				redirected.setTaint();
-			}
 		}
 		
 		ArrayList<Page> filteredPages = new ArrayList<Page>();
 
 		// filter step
-		for (Page page : pages){
-			if (Arguments.getFilter()){ 
-				if (!page.getTaint())
-					continue;
-				else{
-					filteredPages.add(page);
+		if (Arguments.getFilter()){
+			for (String pageDomain: websites.keySet()){
+				Page page = refererLookup.get(pageDomain);
+				doDFS(page, Page.TAINT_DEPTH, filteredPages, refererLookup);
+			}
+		}else{
+			filteredPages = pages;
+		}
+		
+		return filteredPages;
+	}
+	
+	void doDFS(Page current, int depth, List<Page> pages, 
+			Map<String, Page> refererLookup){
+		current.setTaint();
+		if (depth - 1 > 0){
+			for (Connection conn : current.getConnections()){
+				Page target = conn.getTarget();
+				target = refererLookup.get(target.getDomain());
+				
+				if (!target.getTaint()){
+					doDFS(target, depth - 1, pages, refererLookup);
 				}
 			}
-			else{
-				filteredPages = pages;
-			}
-
 		}
-		return filteredPages;
+		pages.add(current);
 	}
 }

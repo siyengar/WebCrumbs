@@ -31,6 +31,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
+import javax.swing.JSlider;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
@@ -38,6 +39,8 @@ import javax.swing.UIManager;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 
 import edu.stanford.webcrumbs.Arguments;
@@ -86,11 +89,14 @@ public class PrefuseVis implements edu.stanford.webcrumbs.visualization.Visualiz
 	JFrame prefuseFrame;
 	
 	JPanel resultPanel;
+	final int FOUND_COLOR = ColorLib.rgb(200,0,0);
+	final int REDIRECT_COLOR = ColorLib.rgb(0,240,0);
 	
 	final int TIP_WIDTH = 500;
 	final int TIP_HEIGHT = 500;
 	final int NUM_DISPLAY = 20;
-	
+	//to make more efficient
+	RepaintAction repaint;
 	
 	Indexer index;
 	
@@ -328,14 +334,14 @@ public class PrefuseVis implements edu.stanford.webcrumbs.visualization.Visualiz
 							vis.getVisualItem(graphNodes, node);
 						previousState.add(new 
 								ItemState(visualNode, type, visualNode.getFillColor()));
-						visualNode.setFillColor(ColorLib.rgb(0, 255, 0));
+						visualNode.setFillColor(FOUND_COLOR);
 					}else if (type.equals("Edges")){
 						Edge edge = graph.getEdge(id);
 						VisualItem visualEdge = 
 							vis.getVisualItem(graphEdges, edge);
 						previousState.add(new 
 								ItemState(visualEdge, type, visualEdge.getStrokeColor()));
-						visualEdge.setStrokeColor(ColorLib.rgb(0, 255, 0));
+						visualEdge.setStrokeColor(FOUND_COLOR);
 					}
 				}
 			}
@@ -395,6 +401,22 @@ public class PrefuseVis implements edu.stanford.webcrumbs.visualization.Visualiz
 
 	}
 
+	class SliderListener implements ChangeListener{
+		@Override
+		public void stateChanged(ChangeEvent evt) {
+			JSlider slider = (JSlider)evt.getSource();
+			if (!slider.getValueIsAdjusting()) {
+		        int val = (int)slider.getValue();
+		        RadialCustomLayout.setRadius(val);
+		        RadialCustomLayout layout = new RadialCustomLayout(graph, graphGroup);
+		        layoutGraph(vis, layout);
+		        vis.run("layout");
+		    }
+			
+		}
+		
+	}
+	
 	class SearchListener implements ActionListener{
 		JTextArea text;
 		public SearchListener(JTextArea text){
@@ -429,13 +451,13 @@ public class PrefuseVis implements edu.stanford.webcrumbs.visualization.Visualiz
 						VisualItem visualNode = 
 							vis.getVisualItem(graphNodes, node);
 						previousState.add(new ItemState(visualNode, type, visualNode.getFillColor()));
-						visualNode.setFillColor(ColorLib.rgb(0, 255, 0));
+						visualNode.setFillColor(FOUND_COLOR);
 					}else if (type.equals("Edges")){
 						Edge edge = graph.getEdge(id);
 						VisualItem visualEdge = 
 							vis.getVisualItem(graphEdges, edge);
 						previousState.add(new ItemState(visualEdge, type, visualEdge.getStrokeColor()));
-						visualEdge.setStrokeColor(ColorLib.rgb(0, 255, 0));
+						visualEdge.setStrokeColor(FOUND_COLOR);
 					}
 				}
 			}
@@ -560,6 +582,17 @@ public class PrefuseVis implements edu.stanford.webcrumbs.visualization.Visualiz
 		this.index = new PrefuseIndexer();
 	}
 	
+	
+	void layoutGraph(Visualization vis, Layout layout){
+		ActionList layoutActions = new ActionList();
+		//adding layout actions
+		layoutActions.add(layout);
+		layoutActions.add(repaint);
+
+		vis.putAction("layout", layoutActions);
+	}
+	
+	
 	public void startVisualization(int ON_CLOSE){
 		vis = new Visualization();
 		vis.add(graphGroup, graph);
@@ -588,7 +621,7 @@ public class PrefuseVis implements edu.stanford.webcrumbs.visualization.Visualiz
 		vis.setRendererFactory(defaultRenderer);
 		
 		// structures
-		int[] palette = {ColorLib.gray(220,230), ColorLib.rgb(200,0,0)};
+		int[] palette = {ColorLib.gray(220,230), REDIRECT_COLOR};
 		int[] fillpalette = {ColorLib.rgb(255,200,0)};
 		String[] mapping = {"false", "true"};
 		String linear = "linear";
@@ -620,7 +653,7 @@ public class PrefuseVis implements edu.stanford.webcrumbs.visualization.Visualiz
 		
 		// layout actions
 		Layout layout = new RadialCustomLayout(graph, graphGroup);
-		RepaintAction repaint = new RepaintAction();
+		repaint = new RepaintAction();
 		
 		// animate actions
         ActionList animate = new ActionList(1250);
@@ -631,7 +664,7 @@ public class PrefuseVis implements edu.stanford.webcrumbs.visualization.Visualiz
 		
 		// creating action lists
 		ActionList colorActions = new ActionList();
-		ActionList layoutActions = new ActionList();
+		
 		ActionList animatePaint = new ActionList(400);
 		ActionList repaintActions = new ActionList();
 		
@@ -642,6 +675,9 @@ public class PrefuseVis implements edu.stanford.webcrumbs.visualization.Visualiz
         // repaint actionlist
         repaintActions.add(new RepaintAction());
         
+        
+        layoutGraph(vis, layout);
+        
 		// color actions
         colorActions.add(fonts);
         colorActions.add(nodeTextColorAction);
@@ -649,13 +685,8 @@ public class PrefuseVis implements edu.stanford.webcrumbs.visualization.Visualiz
         colorActions.add(edgeColorAction);
         colorActions.add(edgeFillColorAction);
 		
-		//adding layout actions
-		layoutActions.add(layout);
-		layoutActions.add(repaint);
-		
         // registering actions
 		vis.putAction("color", colorActions);
-		vis.putAction("layout", layoutActions);
 		vis.putAction("animatePaint", animatePaint);
 		vis.putAction("animate", animate);
         vis.alwaysRunAfter("color", "animate");
@@ -691,8 +722,16 @@ public class PrefuseVis implements edu.stanford.webcrumbs.visualization.Visualiz
 		
 		JSeparator seperate = new JSeparator();
 		
+		JSlider radiusChanger = new JSlider(JSlider.HORIZONTAL,
+                RadialCustomLayout.MIN_RADIUS, RadialCustomLayout.MAX_RADIUS, 
+                RadialCustomLayout.RADIUS);
+		
+		radiusChanger.addChangeListener(new SliderListener());
+		
 		searchPanelLayout.setHorizontalGroup(searchPanelLayout.createParallelGroup().
 											 addComponent(searchField).
+											 addComponent(seperate).
+											 addComponent(radiusChanger).
 											 addComponent(seperate).
 											 addComponent(resultPanel, Alignment.CENTER, 150, 150, 200).
 											 addComponent(searchButton, Alignment.CENTER, 150, 150, 200));
@@ -708,6 +747,8 @@ public class PrefuseVis implements edu.stanford.webcrumbs.visualization.Visualiz
 		searchPanelLayout.setVerticalGroup(searchPanelLayout.createSequentialGroup().
 										   addComponent(searchField, 30, 30, 30).
 										   addComponent(searchButton).
+										   addComponent(seperate, 5, 5, 5).
+										   addComponent(radiusChanger).
 										   addGap(30).
 										   addComponent(seperate, 1, 1, 1).
 										   addComponent(resultPanel, 20 * num, 20 * num, 20 * num));

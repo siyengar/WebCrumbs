@@ -86,7 +86,7 @@ public class Connection{
 	public boolean equals(Object other){
 		if (other instanceof Connection){
 			Connection otherConn = (Connection)other;
-			if (otherConn.target == this.target){
+			if (otherConn.target.equals(this.target)){
 				return true;
 			}
 		}
@@ -94,7 +94,7 @@ public class Connection{
 	}
 	
 	public int hashCode(){
-		return (target.hashCode()) % Integer.MAX_VALUE;
+		return (target.hashCode());
 	}
 	
 }

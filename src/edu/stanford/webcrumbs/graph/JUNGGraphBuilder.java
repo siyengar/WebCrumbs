@@ -20,13 +20,16 @@ public class JUNGGraphBuilder implements GraphBuilder<Graph<Page, Connection>>{
 		Graph<Page, Connection> jungGraph = 
 			new DirectedSparseGraph<Page, Connection>();
 		
-		for (Page page: pages){
-			jungGraph.addVertex(page);
-		}
+		
 		
 		for (Page page: pages){
 			for (Connection conn: page.getConnections()){
-				jungGraph.addEdge(conn, conn.getSource(), conn.getTarget());
+				if (!jungGraph.containsVertex(conn.getSource()))
+					jungGraph.addVertex(conn.getSource());
+				if (!jungGraph.containsVertex(conn.getTarget()))
+					jungGraph.addVertex(conn.getTarget());	
+				if (!jungGraph.containsEdge(conn))
+					jungGraph.addEdge(conn, conn.getSource(), conn.getTarget());
 			}
 		}
 		return jungGraph;

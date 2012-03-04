@@ -261,8 +261,11 @@ public class DomainHarParser implements Parser{
 							);
 				}
 			}
-			refererLookup.put(domain, current);
-			pages.add(current);
+			if (!refererLookup.containsKey(domain)){
+				pages.add(current);
+				refererLookup.put(domain, current);
+			}
+			
 		}
 		
 		//backtrack: because data is read in any order
