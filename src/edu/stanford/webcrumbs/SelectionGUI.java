@@ -56,7 +56,7 @@ public class SelectionGUI extends JFrame{
 						{"allowSelfLoop", "false"},
 						{"rankerfile", "data/indegree_similar"},
 						{"numsearches", "20"},
-						{"taintDepth", "4"}}; 
+						{"taintDepth", "2"}}; 
 	
 		String[] colNames = {"key", "value"};
 		Map<String, Integer> propIdx = new HashMap<String, Integer>();
