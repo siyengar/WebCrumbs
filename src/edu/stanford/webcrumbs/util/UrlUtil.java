@@ -7,6 +7,7 @@ package edu.stanford.webcrumbs.util;
  * Author : Subodh Iyengar
  */
 
+import java.net.MalformedURLException;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
@@ -15,88 +16,11 @@ import java.util.regex.Pattern;
 import edu.stanford.webcrumbs.data.Cookie;
 
 public class UrlUtil {
-	static Pattern domainPattern = Pattern.compile("https?://(.*?)/");  
-	static Matcher domainMatcher = domainPattern.matcher("");
-	static Pattern numberPattern = Pattern.compile("\\d+\\.\\d+");
-	static Matcher numberMatcher = numberPattern.matcher("");
-	
 	static Pattern keyValuePattern = Pattern.compile("([^&=?;]+)=?([^;&$]*)");
 	static Matcher keyValueMatcher = keyValuePattern.matcher("");
 	
-	static String[] domains = {".com", ".co", ".net", ".org", ".de", ".jp", ".ru", 
-			".uk", ".cn", ".th", ".ly", ".in", ".za", ".us" , ".nl",
-			".pl", ".id", ".ca", ".es", ".it", ".fr", ".biz", ".eu",
-			".gr", ".ie", ".hu", ".ae", ".gov", ".kr", ".cz", ".cl",
-			".am", ".ch", ".ph", ".ro", ".se", ".cc", ".at", ".la",
-			".ve", ".be", ".co", ".la", ".pt", ".dk", ".no", ".vn",
-			".fi", ".tv", ".ir", ".is", ".me", ".to", ".li", ".sk",
-			".gl", ".bg", ".lk", ".az", ".kz", ".hr", ".pe", ".fm",
-			".by", ".lt", ".edu", ".iq", ".tr", ".hk", ".br", ".mx",
-			".au", ".st", ".ar", ".sa", ".pk", ".my", ".ma", ".il",
-			".ua", ".bz", ".ng", ".eg", ".tw", ".sg", ".io", ".tw",
-			".kw", ".qa", ".do", ".ec", ".bd", ".om", ".tn", ".gt",
-			".si", ".pn", ".asia", ".pr", ".sv", ".uy", ".bo", ".md",
-			".lv", ".cu", ".rs", ".jo", ".ba", ".mobi", ".cm", ".ee",
-			".ws", ".bh", ".gh", ".np", ".py", ".dz", ".tl", ".name",
-			".lb", ".nu", ".gs", ".lu", ".im", ".ni", ".ci", ".hn",
-			".sc", ".tt", ".ms", ".mg", ".museum", ".mil", ".su", ".sy",
-			".et", ".mu", ".sn", ".US", ".cx"};
-	
-	static Map<String, Boolean> domainMap = 
-		new TreeMap<String, Boolean>();
-	
-	public static void createDomainMap(){
-		for (String domain: domains){
-			domainMap.put(domain.substring(1), true);
-		}
-	}
-	
-	static boolean domainContained(String domainString){
-		if (domainMap.containsKey(domainString)){
-			return true;
-		}
-		return false;
-	}
-	
-	public static String getDomain(String url){
-		if (url.equals("")) return "";
-		
-		if (url.startsWith("data")){
-			return "data node";
-		}
-		
-		url = url + "/";
-		url = url.replace('?', '/');
-		
-		String domainName = "";
-		domainMatcher.reset(url);
-		String domainLevel = url;
-		
-		if (domainMatcher.find()){
-			domainName = domainMatcher.group(1);
-			String splits[] = domainName.split("\\.");
-			
-			StringBuffer sb = new StringBuffer();
-			if (splits.length - 2 >= 0){
-				if (domainContained(splits[splits.length - 2])){
-					if (splits.length - 3 >= 0){
-						sb.append(splits[splits.length - 3]);
-						sb.append(".");
-					}
-				}
-				sb.append(splits[splits.length - 2]);
-				sb.append(".");
-			}
-			sb.append(splits[splits.length - 1]);
-			domainLevel = sb.toString();
-		}
-		
-		numberMatcher.reset(domainLevel);
-		
-		if (numberMatcher.find()){
-			domainLevel = domainName;
-		}
-		return domainLevel;
+	public static String getDomain(String url) throws MalformedURLException {
+		return (new java.net.URL(url)).getHost();
 	}
 	
 	public static Cookie getKeyValues(String url){
@@ -126,29 +50,8 @@ public class UrlUtil {
 	}
 	
 	
-	public static String getQueryString(String url){
-		String queryString = "";
-		int questionMark = url.indexOf("?");
-		int semicolonMark = url.indexOf(";");
-		int min = -1;
-		
-		if (questionMark == -1){
-			min = semicolonMark;
-		}else if (semicolonMark == -1){
-			min = questionMark;
-		}else if (questionMark < semicolonMark){
-			min = questionMark;
-		}else{
-			min = semicolonMark;
-		}
-		
-		if (min == -1){
-			return "";
-		}
-		
-		queryString = url.substring(min + 1);
-		
-		return queryString;
+	public static String getQueryString(String url) throws MalformedURLException{
+		return (new java.net.URL(url)).getQuery();
 	}
 	
 }
