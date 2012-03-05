@@ -2,20 +2,19 @@ WebCrumbs is an analysis platform for web logs that are based on Requests.
 
 To run WebCrumbs:
 1. Install ant, if you don't already have it.
-2. Download webcrumbs.jar, build.xml, lib, data and runWebCrumbs.bat
+2. Download the project as a zip file
 3. If on Windows:
    3.1 Put ant in your path.
-   3.2 Run runWebCrumbs.bat
+   3.2 Go to the project directory in the command line and type in ``ant''
 4. If on Linux/Unix:
-   4.1 Make sure you have bash and ant installed.
-   4.2 chmod +x runWebCrumbs
-   4.3 ./runWebCrumbs
+   4.1 Make sure you have ant installed.
+   4.2 Go to the project directory in the command line and type in ``ant''.
 
 The data directory has some fun data files to play around with. WebCrumbs currently supports both the HAR and FourthParty data formats. Adding your own file is easy with pluggable Parsers (More on how to make your own Parser later). 
 
-You can render and search through graphs using the WebCrumbs framework.
+You can render and search through graphs using the WebCrumbs framework.  When the visualization renders, you can right click nodes or connections to display the connection information window. You can select the top strings in the graph on the right. You can rearrange nodes, as well as zoom in and out using the scroll wheel.
 
-Right click links or nodes to view their properties. To search, either highlight any text in a text box, or put a string into the search box to the right of the screen on click on one of the top strings listed by frequency.
+To search, either highlight any text in a text box, or put a string into the search box to the right of the screen on click on one of the top strings listed by frequency. Or just highlight the portion in the information window and click search.
 
 You can also plug in your own rankers which allow you to both change the color and the size of the nodes in the graph that you observe. 
 
